@@ -254,14 +254,14 @@ export async function mockApi(path, options = {}) {
   // POST /api/mailboxes/pin
   if (url.pathname === '/api/mailboxes/pin' && options.method === 'POST') {
     const address = url.searchParams.get('address');
-    if (!address) return new Response('缺少 address 参数', { status: 400 });
+    if (!address) return new Response('Missing address parameter', { status: 400 });
     
     const mailbox = MOCK_STATE.mailboxes.find(m => m.address === address);
     if (mailbox) {
       mailbox.is_pinned = mailbox.is_pinned ? 0 : 1;
       return new Response(JSON.stringify({ success: true, is_pinned: mailbox.is_pinned }), { headers: jsonHeaders });
     }
-    return new Response('邮箱不存在', { status: 404 });
+    return new Response('Mailbox not found', { status: 404 });
   }
 
   // POST /api/create
@@ -270,14 +270,14 @@ export async function mockApi(path, options = {}) {
       const body = typeof options.body === 'string' ? JSON.parse(options.body || '{}') : (options.body || {});
       const local = String((body.local || '').trim());
       if (!/^[A-Za-z0-9._-]{1,64}$/.test(local)) {
-        return new Response('非法用户名', { status: 400 });
+        return new Response('Invalid username', { status: 400 });
       }
       const domainIndex = Number(body.domainIndex || 0);
       const domain = MOCK_STATE.domains[Math.max(0, Math.min(MOCK_STATE.domains.length - 1, domainIndex))] || 'example.com';
       const email = `${local}@${domain}`;
       
       if (MOCK_STATE.mailboxes.find(m => m.address === email)) {
-        return new Response('邮箱地址已存在', { status: 409 });
+        return new Response('Mailbox address already exists', { status: 409 });
       }
       
       const newMailbox = { 
@@ -301,7 +301,7 @@ export async function mockApi(path, options = {}) {
   if ((url.pathname === '/api/emails' && options.method === 'DELETE') ||
       (url.pathname.startsWith('/api/email/') && options.method === 'DELETE') ||
       (url.pathname === '/api/mailboxes' && options.method === 'DELETE')) {
-    return new Response('演示模式不可操作', { status: 403 });
+    return new Response('Operation is not available in demo mode', { status: 403 });
   }
 
   // GET /api/user/quota
@@ -333,7 +333,7 @@ export async function mockApi(path, options = {}) {
         mailbox.forward_to = forwardTo;
         return new Response(JSON.stringify({ success: true, forward_to: forwardTo }), { headers: jsonHeaders });
       }
-      return new Response(JSON.stringify({ error: '邮箱不存在' }), { status: 404, headers: jsonHeaders });
+      return new Response(JSON.stringify({ error: 'Mailbox not found' }), { status: 404, headers: jsonHeaders });
     } catch (_) {
       return new Response(JSON.stringify({ error: 'Bad Request' }), { status: 400, headers: jsonHeaders });
     }
@@ -350,7 +350,7 @@ export async function mockApi(path, options = {}) {
         mailbox.is_favorite = mailbox.is_favorite ? 0 : 1;
         return new Response(JSON.stringify({ success: true, is_favorite: mailbox.is_favorite }), { headers: jsonHeaders });
       }
-      return new Response(JSON.stringify({ error: '邮箱不存在' }), { status: 404, headers: jsonHeaders });
+      return new Response(JSON.stringify({ error: 'Mailbox not found' }), { status: 404, headers: jsonHeaders });
     } catch (_) {
       return new Response(JSON.stringify({ error: 'Bad Request' }), { status: 400, headers: jsonHeaders });
     }
@@ -431,7 +431,7 @@ export async function mockApi(path, options = {}) {
         mailbox.can_login = canLogin;
         return new Response(JSON.stringify({ success: true, can_login: canLogin }), { headers: jsonHeaders });
       }
-      return new Response(JSON.stringify({ error: '邮箱不存在' }), { status: 404, headers: jsonHeaders });
+      return new Response(JSON.stringify({ error: 'Mailbox not found' }), { status: 404, headers: jsonHeaders });
     } catch (_) {
       return new Response(JSON.stringify({ error: 'Bad Request' }), { status: 400, headers: jsonHeaders });
     }
