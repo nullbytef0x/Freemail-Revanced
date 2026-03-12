@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en" class="precheck-hide">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Mailbox - Freemail Revanced</title>
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <style>.precheck-hide body{ visibility: hidden !important; }</style>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="shortcut icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/css/app.css" />
+  <link rel="stylesheet" href="/css/mailbox.css" />
+  <link rel="stylesheet" href="/css/theme-clean.css" />
+  <script src="/js/auth-guard.js" defer></script>
+  <script>
+    // Quick frontend auth check for mailbox page, only allow mailbox role
+    (function(){
+      fetch('/api/session', { headers: { 'Cache-Control': 'no-cache' } })
+        .then(r => r.ok ? r.json() : Promise.reject('unauth'))
+        .then(s => {
+          if (s && s.role === 'mailbox'){
+            try{ document.documentElement.classList.remove('precheck-hide'); }catch(_){ }
+            return;
+          }
+          // Other roles: redirect to homepage
+          location.replace('/');
+        })
+        .catch(() => {
+          // Not logged in: go to loading page for auth
+          if (window.AuthGuard) { window.AuthGuard.goLoading('/html/mailbox.html', 'Verifying permissions…'); }
+          else { location.replace('/templates/loading.html?redirect=%2Fhtml%2Fmailbox.html&status=' + encodeURIComponent('Verifying permissions…')); }
+        });
+    })();
+  </script>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-icon">📧</span>
+      <span class="brand-text">Freemail Revanced</span>
+    </div>
+    <div id="role-badge" class="role-badge" title="Mailbox User">Mailbox User</div>
+    <div class="nav-actions">
+      <a id="repo" class="btn btn-ghost" href="https://github.com/idinging/freemail" target="_blank" rel="noopener noreferrer" title="GitHub Repository">
+        <span class="btn-icon">🔗</span>
+        <span class="btn-text">GitHub</span>
+      </a>
+      <button id="logout" class="btn btn-secondary" title="Log Out">
+        <span class="btn-icon">🚪</span>
+        <span class="btn-text">Log Out</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="container mailbox-container">
+  <div class="main mailbox-main">
+    <!-- Mailbox Info Card -->
+    <div class="card mailbox-info-card">
+      <h2>
+        <span class="card-icon">📬</span>
+        My Mailbox
+      </h2>
+      <div class="mailbox-info">
+        <div class="mailbox-display">
+          <span class="mailbox-icon">📧</span>
+          <span id="current-mailbox" class="mailbox-address">Loading...</span>
+          <button id="copy-mailbox" class="btn btn-secondary btn-sm" title="Copy email address">
+            <span class="btn-icon">📋</span>
+            <span>Copy</span>
+          </button>
+        <!-- Change Password -->
+          <button id="change-password" class="btn btn-ghost btn-sm" title="Change Password">
+            <span class="btn-icon">🔒</span>
+            <span>Change Password</span>
+          </button>
+        </div>
+        <div class="mailbox-toolbar">
+          <div class="toolbar-left">
+            <span class="chip chip-unread">Unread <span id="unread-count">0</span></span>
+            <span class="chip chip-total">All <span id="total-count">0</span></span>
+          </div>
+          <div class="toolbar-right">
+            <label class="toggle" title="Auto refresh at set interval">
+              <input id="auto-refresh" type="checkbox" />
+              <span>Auto Refresh</span>
+            </label>
+            <select id="refresh-interval" class="select select-sm" title="Refresh Interval">
+              <option value="10">10s</option>
+              <option value="30" selected>30s</option>
+              <option value="60">60s</option>
+            </select>
+            <input id="search-box" class="input input-sm" placeholder="Search sender/subject" />
+            <button id="clear-filter" class="btn btn-ghost btn-sm" title="Clear Filter">Clear</button>
+            <button id="refresh-emails" class="btn btn-ghost" title="Refresh Now">
+              <span class="btn-icon">🔄</span>
+              <span>Refresh</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inbox Card -->
+    <div class="card inbox-card">
+      <div class="listcard-header">
+        <h2 class="listcard-title">
+          <span class="card-icon">📨</span>
+          <span>Inbox</span>
+          <span class="retention-hint">Retained for 24 hours only</span>
+        </h2>
+        <div id="list-loading" class="loading-indicator" style="pointer-events:none" role="status" aria-live="polite">
+          <div class="spinner"></div>
+          <span>Loading…</span>
+        </div>
+      </div>
+      <div class="list-viewport" style="position:relative;contain:layout paint;isolation:isolate;">
+        <div id="email-list" class="list"></div>
+        <div id="empty-state" class="empty-state" style="display:none">
+          <div class="empty-icon">📭</div>
+          <div class="empty-title">No Emails</div>
+        </div>
+        <div id="list-pager" class="pager" style="display:none">
+          <button id="prev-page" class="btn btn-ghost btn-sm">Previous</button>
+          <span id="page-info" class="muted" style="min-width:100px;text-align:center"></span>
+          <button id="next-page" class="btn btn-ghost btn-sm">Next</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="footer-slot"></div>
+
+<!-- Email Detail Modal -->
+<div class="modal" id="email-modal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div id="modal-subject">
+        <span class="modal-icon">📧</span>
+        <span>Email Details</span>
+      </div>
+      <button id="modal-close" class="close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="modal-content"></div>
+    </div>
+  </div>
+</div>
+  <script src="/js/toast-utils.js"></script>
+  <script type="module" src="/js/mailbox.js"></script>
+<script>
+  // Dynamically load common footer template
+  (async function(){
+    try{
+      const res = await fetch('/templates/footer.html', { cache: 'no-cache' });
+      const html = await res.text();
+      const slot = document.getElementById('footer-slot');
+      if (slot){
+        slot.outerHTML = html;
+        setTimeout(()=>{ const y=document.getElementById('footer-year'); if (y) y.textContent=new Date().getFullYear(); },0);
+      }
+    }catch(_){ }
+  })();
+</script>
+</body>
+</html>
+<!-- Confirm Delete Modal -->
+<div class="modal" id="confirm-modal">
+  <div class="modal-card confirm-card">
+    <div class="modal-header confirm-header">
+      <div>
+        <span class="modal-icon">⚠️</span>
+        <span>Confirm Action</span>
+      </div>
+      <button id="confirm-close" class="close">✕</button>
+    </div>
+    <div class="modal-body confirm-body">
+      <div id="confirm-message" class="confirm-message"></div>
+      <div class="confirm-actions">
+        <button id="confirm-cancel" class="btn btn-secondary">Cancel</button>
+        <button id="confirm-ok" class="btn btn-danger">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal" id="password-modal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div>
+        <span class="modal-icon">🔒</span>
+        <span>Change Password</span>
+      </div>
+      <button id="password-close" class="close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="password-hint">
+        <span class="hint-icon">⚠️</span>
+        <span>You will need to log in again after changing your password</span>
+      </div>
+      <form id="password-form">
+        <div class="form-group">
+          <label for="current-password">Current Password</label>
+          <input type="password" id="current-password" class="input" placeholder="Enter current password" required />
+        </div>
+        <div class="form-group">
+          <label for="new-password">New Password</label>
+          <input type="password" id="new-password" class="input" placeholder="Enter new password (min 6 chars)" minlength="6" required />
+        </div>
+        <div class="form-group">
+          <label for="confirm-password">Confirm New Password</label>
+          <input type="password" id="confirm-password" class="input" placeholder="Re-enter new password" minlength="6" required />
+        </div>
+        <div class="form-actions">
+          <button type="button" id="password-cancel" class="btn btn-secondary">Cancel</button>
+          <button type="submit" id="password-submit" class="btn btn-primary">Change Password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

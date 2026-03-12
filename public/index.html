@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Freemail Revanced</title>
+    <!-- Runtime-injected domain list (parsed from env.MAIL_DOMAIN), used for frontend domain selection -->
+    <meta name="mail-domains" content="">
+    <link rel="preload" href="/html/app.html" as="fetch" crossorigin>
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="shortcut icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/app-mobile.css" media="(max-width: 900px)" />
+    <link rel="stylesheet" href="/css/theme-clean.css" />
+    <script src="/js/toast-utils.js"></script>
+    <script src="/js/mock.js"></script>
+    <!-- Save hash early to preserve route info -->
+    <script>
+      try{ if (location.hash){ sessionStorage.setItem('mf:preservedHash', location.hash); } }catch(_){ }
+    </script>
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/app-router.js" defer></script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+      // Improved route guard logic: use loading page for auth check first to avoid login page flash
+      (function() {
+        try{
+          // Check if navigated from another page (not direct address bar access)
+          var isDirectAccess = !document.referrer || window.history.length <= 1;
+          
+          // Check recent auth marker (within 10s) - extended window to reduce repeated checks
+          var ts = 0; 
+          try{ ts = Number(sessionStorage.getItem('auth_checked_ts') || '0'); }catch(_){ }
+          var recentlyChecked = ts && (Date.now() - ts) < 10000;
+          
+          // If recently verified, load the app directly
+          if (recentlyChecked && !isDirectAccess){
+            var s1 = document.createElement('script'); 
+            s1.type='module'; 
+            s1.src='/js/app.js'; 
+            document.body.appendChild(s1);
+            try{ 
+              if (window.matchMedia && window.matchMedia('(max-width: 900px)').matches){ 
+                var sm1=document.createElement('script'); 
+                sm1.type='module'; 
+                sm1.src='/js/app-mobile.js'; 
+                document.body.appendChild(sm1); 
+              } 
+            }catch(_){ }
+            return;
+          }
+          
+              // Direct address bar access or long since last verification: try quick check for existing login cookie
+          if (isDirectAccess){
+            try{
+              var hasCookie = document.cookie.split(';').some(function(c){ return c.trim().indexOf('iding-session=') === 0; });
+              if (hasCookie){
+                // Has login cookie: optimized verification logic to reduce unnecessary login page redirects
+                const controller = new AbortController();
+                const tid = setTimeout(function(){ try{ controller.abort(); }catch(_){ } }, 3000); // Extended timeout to 3s
+                fetch('/api/session', { headers:{'Cache-Control':'no-cache'}, signal: controller.signal, credentials: 'include' })
+                  .then(function(r){
+                    clearTimeout(tid);
+                    if (!r || !r.ok) {
+                      // For cases with cookie but failed verification, load the app and let it handle internally
+                      // Avoid redirecting to login page causing page flash
+                      try{ sessionStorage.setItem('auth_checked','true'); sessionStorage.setItem('auth_checked_ts', String(Date.now())); }catch(_){ }
+                      var s1=document.createElement('script'); s1.type='module'; s1.src='/js/app.js'; document.body.appendChild(s1);
+                      try{ if (window.matchMedia && window.matchMedia('(max-width: 900px)').matches){ var sm=document.createElement('script'); sm.type='module'; sm.src='/js/app-mobile.js'; document.body.appendChild(sm); } }catch(_){ }
+                      return;
+                    }
+                    return r.json();
+                  })
+                  .then(function(s){
+                    if (!s) return; 
+                    if (s.role === 'mailbox') { window.location.replace('/html/mailbox.html'); return; }
+                    try{ sessionStorage.setItem('auth_checked','true'); sessionStorage.setItem('auth_checked_ts', String(Date.now())); }catch(_){ }
+                    // Load app
+                    var s1=document.createElement('script'); s1.type='module'; s1.src='/js/app.js'; document.body.appendChild(s1);
+                    try{ if (window.matchMedia && window.matchMedia('(max-width: 900px)').matches){ var sm=document.createElement('script'); sm.type='module'; sm.src='/js/app-mobile.js'; document.body.appendChild(sm); } }catch(_){ }
+                  })
+                  .catch(function(){
+                    // On network error, if cookie exists load app directly and let it handle auth state
+                    // This avoids unnecessary login page redirects caused by network issues
+                    try{ sessionStorage.setItem('auth_checked','true'); sessionStorage.setItem('auth_checked_ts', String(Date.now())); }catch(_){ }
+                    var s1=document.createElement('script'); s1.type='module'; s1.src='/js/app.js'; document.body.appendChild(s1);
+                    try{ if (window.matchMedia && window.matchMedia('(max-width: 900px)').matches){ var sm=document.createElement('script'); sm.type='module'; sm.src='/js/app-mobile.js'; document.body.appendChild(sm); } }catch(_){ }
+                  });
+                return;
+              }
+            }catch(_){ }
+            // Show loading UI while performing auth check
+            var loadingDiv = document.createElement('div');
+            loadingDiv.innerHTML = '<div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#f8fafc;z-index:9999"><div style="text-align:center"><div style="font-size:3rem;margin-bottom:1rem">📧</div><div style="width:40px;height:40px;border:3px solid rgba(59,130,246,0.2);border-top:3px solid #3b82f6;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto"></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style></div></div>';
+            document.body.appendChild(loadingDiv);
+            
+            // Perform auth check in parallel
+            const controller = new AbortController();
+            const tid = setTimeout(function(){ try{ controller.abort(); }catch(_){ } }, 2500); // Extended timeout to 2.5s
+            fetch('/api/session', { 
+              headers: { 'Cache-Control': 'no-cache' }, 
+              signal: controller.signal,
+              credentials: 'include'
+            })
+              .then(function(r){
+                clearTimeout(tid);
+                if (r && r.ok){
+                  return r.json().then(function(s){
+                    if (s && s.role === 'mailbox') { window.location.replace('/html/mailbox.html'); return null; }
+                    return s;
+                  });
+                } else {
+                  // Redirect to loading page for more complete auth check
+                  window.location.replace('/templates/loading.html?redirect=/');
+                  return null;
+                }
+              })
+              .then(function(s){
+                if (!s) return; 
+                  try{ 
+                    sessionStorage.setItem('auth_checked','true'); 
+                    sessionStorage.setItem('auth_checked_ts', String(Date.now())); 
+                  }catch(_){ }
+                  // Remove loading UI
+                  if (loadingDiv) loadingDiv.remove();
+                  // Load app
+                  var s = document.createElement('script');
+                  s.type = 'module';
+                  s.src = '/js/app.js';
+                  document.body.appendChild(s);
+                  try{ 
+                    if (window.matchMedia && window.matchMedia('(max-width: 900px)').matches){ 
+                      var sm=document.createElement('script'); 
+                      sm.type='module'; 
+                      sm.src='/js/app-mobile.js'; 
+                      document.body.appendChild(sm);
+                    } 
+                  }catch(_){ }
+              })
+              .catch(function(){ 
+                // On network error, redirect to loading page
+                window.location.replace('/templates/loading.html?redirect=/');
+              });
+          } else {
+            // Non-direct access: quick auth check
+            var hasCookie = false;
+            try{ hasCookie = document.cookie.split(';').some(function(c){ return c.trim().indexOf('iding-session=') === 0; }); }catch(_){ }
+            
+            const controller = new AbortController();
+            const tid = setTimeout(function(){ try{ controller.abort(); }catch(_){ } }, 2000); // Extended timeout to 2s
+            fetch('/api/session', { 
+              headers: { 'Cache-Control': 'no-cache' }, 
+              signal: controller.signal,
+              credentials: 'include'
+            })
+              .then(function(r){
+                clearTimeout(tid);
+                if (r && r.ok){
+                  return r.json().then(function(s){
+                    if (s && s.role === 'mailbox') { window.location.replace('/html/mailbox.html'); return null; }
+                    return s;
+                  });
+                } else {
+                  // If cookie exists but verification failed, let the app handle it instead of redirecting to login
+                  if (hasCookie) {
+                    try{ sessionStorage.setItem('auth_checked','true'); sessionStorage.setItem('auth_checked_ts', String(Date.now())); }catch(_){ }
+                    var s1 = document.createElement('script'); s1.type = 'module'; s1.src = '/js/app.js'; document.body.appendChild(s1);
+                    try{ if (window.matchMedia && window.matchMedia('(max-width: 900px)').matches){ var sm=document.createElement('script'); sm.type='module'; sm.src='/js/app-mobile.js'; document.body.appendChild(sm); } }catch(_){ }
+                    return null;
+                  }
+                  window.location.replace('/html/login.html');
+                  return null;
+                }
+              })
+              .then(function(s){
+                if (!s) return; 
+                try{ 
+                  sessionStorage.setItem('auth_checked','true'); 
+                  sessionStorage.setItem('auth_checked_ts', String(Date.now())); 
+                }catch(_){ }
+                var s1 = document.createElement('script');
+                s1.type = 'module';
+                s1.src = '/js/app.js';
+                document.body.appendChild(s1);
+                try{ 
+                  if (window.matchMedia && window.matchMedia('(max-width: 900px)').matches){ 
+                    var sm=document.createElement('script'); 
+                    sm.type='module'; 
+                    sm.src='/js/app-mobile.js'; 
+                    document.body.appendChild(sm);
+                  } 
+                }catch(_){ }
+              })
+              .catch(function(){ 
+                // On network error, if cookie exists load app directly
+                if (hasCookie) {
+                  try{ sessionStorage.setItem('auth_checked','true'); sessionStorage.setItem('auth_checked_ts', String(Date.now())); }catch(_){ }
+                  var s1 = document.createElement('script'); s1.type = 'module'; s1.src = '/js/app.js'; document.body.appendChild(s1);
+                  try{ if (window.matchMedia && window.matchMedia('(max-width: 900px)').matches){ var sm=document.createElement('script'); sm.type='module'; sm.src='/js/app-mobile.js'; document.body.appendChild(sm); } }catch(_){ }
+                } else {
+                  window.location.replace('/html/login.html'); 
+                }
+              });
+          }
+        }catch(_){ 
+          window.location.replace('/templates/loading.html?redirect=/'); 
+        }
+      })();
+    </script>
+  </body>
+  </html>
+

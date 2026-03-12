@@ -1,0 +1,1006 @@
+/* =============================================
+   Freemail Clean Theme Override
+   Modern, smooth, minimal dashboard design
+   ============================================= */
+
+/* ===== Clean Color Palette ===== */
+:root {
+  /* Clean neutral background - no colorful gradients */
+  --surface: #f8f9fb;
+  --surface-overlay: linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 249, 251, 0.9) 100%);
+  --surface-pattern: none;
+  --surface-mesh: none;
+
+  /* Clean card system */
+  --card: #ffffff;
+  --card-hover: #ffffff;
+  --card-glass: rgba(255, 255, 255, 0.92);
+  --card-glass-hover: rgba(255, 255, 255, 0.98);
+  --card-gradient: none;
+  --card-gradient-accent: none;
+
+  /* Unified primary - calm indigo */
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-active: #3730a3;
+  --primary-light: rgba(79, 70, 229, 0.08);
+  --primary-glass: rgba(79, 70, 229, 0.04);
+  --primary-rgb: 79, 70, 229;
+  --primary-gradient: #4f46e5;
+  --primary-gradient-soft: rgba(79, 70, 229, 0.06);
+
+  /* Toned down secondary - same family */
+  --secondary: #6366f1;
+  --secondary-hover: #4f46e5;
+  --secondary-light: rgba(99, 102, 241, 0.08);
+  --secondary-gradient: #6366f1;
+
+  /* Remove accent color - use primary instead */
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-light: rgba(79, 70, 229, 0.08);
+  --accent-gradient: #4f46e5;
+
+  /* Subtle status colors */
+  --success: #059669;
+  --success-hover: #047857;
+  --success-light: rgba(5, 150, 105, 0.08);
+  --success-gradient: #059669;
+
+  --warning: #d97706;
+  --warning-hover: #b45309;
+  --warning-light: rgba(217, 119, 6, 0.08);
+  --warning-gradient: #d97706;
+
+  --danger: #dc2626;
+  --danger-hover: #b91c1c;
+  --danger-active: #991b1b;
+  --danger-light: rgba(220, 38, 38, 0.06);
+  --danger-gradient: #dc2626;
+
+  --info: #0284c7;
+  --info-hover: #0369a1;
+  --info-light: rgba(2, 132, 199, 0.08);
+  --info-gradient: #0284c7;
+
+  /* Clean text colors */
+  --text: #1e293b;
+  --text-light: #475569;
+  --text-muted: #64748b;
+  --text-secondary: #94a3b8;
+
+  /* Clean borders */
+  --border: #e5e7eb;
+  --border-light: #f3f4f6;
+  --border-dark: #d1d5db;
+  --border-glass: #e5e7eb;
+  --border-glass-dark: rgba(0, 0, 0, 0.04);
+  --border-focus: rgba(79, 70, 229, 0.4);
+  --border-gradient: none;
+
+  /* Cleaner shadows - less colorful */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.06), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.12);
+  --shadow-glow: none;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-glass: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-colored: 0 4px 14px rgba(79, 70, 229, 0.15);
+
+  /* Slightly softer radius */
+  --radius: 12px;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-2xl: 24px;
+
+  /* Smooth but not bouncy transitions */
+  --transition: all 0.2s ease;
+  --transition-fast: all 0.15s ease;
+  --transition-slow: all 0.25s ease;
+  --transition-bounce: all 0.3s ease;
+  --ease-out-expo: ease;
+  --spring: ease;
+
+  /* Blur values */
+  --blur-sm: blur(8px);
+  --blur-md: blur(12px);
+  --blur-lg: blur(16px);
+  --blur-xl: blur(20px);
+}
+
+/* ===== Clean Body - No animated background ===== */
+body {
+  background: #f8f9fb !important;
+  background-attachment: initial !important;
+}
+
+body::before {
+  display: none !important;
+}
+
+body::after {
+  display: none !important;
+}
+
+/* Admin page clean background */
+.admin-page {
+  background: #f8f9fb !important;
+}
+
+.admin-page::before,
+.admin-page::after {
+  display: none !important;
+}
+
+/* ===== Clean Topbar ===== */
+.topbar {
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  padding: 12px 28px !important;
+}
+
+.topbar::before {
+  display: none !important;
+}
+
+.topbar:hover::before {
+  display: none !important;
+}
+
+/* Clean brand text - no gradient animation */
+.brand span,
+.brand .brand-text {
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  -webkit-text-fill-color: #1e293b !important;
+  background-clip: initial !important;
+  animation: none !important;
+  font-weight: 700 !important;
+}
+
+.brand-icon {
+  animation: none !important;
+  filter: none !important;
+  font-size: 22px !important;
+}
+
+.brand:hover {
+  transform: none !important;
+}
+
+/* ===== Clean Navigation Buttons ===== */
+.nav-actions .btn-ghost {
+  border: 1px solid #e5e7eb !important;
+  border-style: solid !important;
+  border-radius: 8px !important;
+  padding: 8px 16px !important;
+  font-weight: 500 !important;
+  color: #475569 !important;
+  background: #ffffff !important;
+}
+
+.nav-actions .btn-ghost:hover {
+  background: #f3f4f6 !important;
+  border-color: #d1d5db !important;
+  color: #1e293b !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.btn-secondary {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  color: #475569 !important;
+  box-shadow: none !important;
+}
+
+.btn-secondary:hover {
+  background: #f3f4f6 !important;
+  border-color: #d1d5db !important;
+  color: #1e293b !important;
+}
+
+/* Topbar logout button */
+.topbar .btn-secondary {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  color: #475569 !important;
+}
+
+.topbar .btn-secondary:hover {
+  background: #fef2f2 !important;
+  border-color: #fecaca !important;
+  color: #dc2626 !important;
+}
+
+/* ===== Clean Primary Button ===== */
+.btn-primary {
+  background: #4f46e5 !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.btn-primary:hover {
+  background: #4338ca !important;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2) !important;
+  transform: translateY(-1px) !important;
+}
+
+.btn-primary:active {
+  background: #3730a3 !important;
+  transform: translateY(0) !important;
+}
+
+/* ===== Clean Danger Button ===== */
+.btn-danger {
+  background: #dc2626 !important;
+  box-shadow: none !important;
+}
+
+.btn-danger:hover {
+  background: #b91c1c !important;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2) !important;
+}
+
+/* ===== Clean Ghost Button ===== */
+.btn-ghost {
+  border-style: solid !important;
+  border-color: transparent !important;
+}
+
+.btn-ghost:hover {
+  background: rgba(79, 70, 229, 0.06) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
+  color: #4f46e5 !important;
+}
+
+/* ===== Disable Icon Animations ===== */
+.btn:hover .btn-icon {
+  transform: none !important;
+}
+
+.btn-danger:hover .btn-icon {
+  transform: none !important;
+}
+
+.mailbox-actions .btn:hover .btn-icon {
+  transform: none !important;
+}
+
+.sidebar-icon {
+  animation: none !important;
+}
+
+@keyframes iconPulse {
+  0%, 100% { transform: none; }
+}
+
+@keyframes iconFloat {
+  0%, 100% { transform: none; }
+}
+
+@keyframes iconGlow {
+  0%, 100% { transform: none; }
+}
+
+/* ===== Clean Cards ===== */
+.card {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  border-radius: 12px !important;
+}
+
+.card:hover {
+  transform: none !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07) !important;
+}
+
+/* Remove colored card backgrounds */
+.generate-card {
+  background: #ffffff !important;
+}
+
+.inbox-card {
+  background: #ffffff !important;
+}
+
+/* ===== Clean Sidebar ===== */
+.sidebar {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  border-radius: 12px !important;
+}
+
+.sidebar::before {
+  display: none !important;
+}
+
+.sidebar:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07) !important;
+  transform: none !important;
+}
+
+.sidebar.collapsed {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  animation: none !important;
+}
+
+.sidebar.collapsed:hover {
+  animation: none !important;
+  transform: none !important;
+}
+
+/* Clean sidebar scrollbar */
+.sidebar:hover::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.3) !important;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.5) !important;
+}
+
+/* ===== Clean Sidebar Toggle Button ===== */
+.sidebar-toggle-btn {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  border-radius: 8px !important;
+}
+
+.sidebar-toggle-btn::before {
+  display: none !important;
+}
+
+.sidebar-toggle-btn:hover {
+  background: #4f46e5 !important;
+  border-color: #4f46e5 !important;
+  color: white !important;
+  transform: none !important;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.2) !important;
+}
+
+.sidebar-toggle-btn:hover span {
+  color: white !important;
+}
+
+.sidebar-toggle-btn:active {
+  transform: none !important;
+}
+
+/* ===== Clean Email Display ===== */
+.email-display {
+  background: #f9fafb !important;
+  border: 1px solid #e5e7eb !important;
+  border-style: solid !important;
+  border-radius: 10px !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.email-display::before {
+  display: none !important;
+}
+
+.email-display.has-email {
+  border-color: #4f46e5 !important;
+  background: rgba(79, 70, 229, 0.04) !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+
+.email-display.has-email::before {
+  display: none !important;
+}
+
+/* ===== Clean Generate Button ===== */
+.btn-generate {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: none !important;
+}
+
+.btn-generate:hover {
+  background: #f9fafb !important;
+  border-color: #d1d5db !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* ===== Clean Mailbox Actions ===== */
+.mailbox-actions .btn-secondary {
+  background: #ffffff !important;
+  border-color: #e5e7eb !important;
+  color: #475569 !important;
+}
+
+.mailbox-actions .btn-secondary:hover {
+  background: #4f46e5 !important;
+  border-color: #4f46e5 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+}
+
+.mailbox-actions .btn-danger {
+  background: #ffffff !important;
+  border-color: #fecaca !important;
+  color: #dc2626 !important;
+}
+
+.mailbox-actions .btn-danger:hover {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+}
+
+.mailbox-actions .btn-ghost {
+  background: #ffffff !important;
+  border-color: #e5e7eb !important;
+  color: #475569 !important;
+  border-style: solid !important;
+}
+
+.mailbox-actions .btn-ghost:hover {
+  background: rgba(79, 70, 229, 0.06) !important;
+  border-color: #4f46e5 !important;
+  color: #4f46e5 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* ===== Clean Mailbox Items (sidebar) ===== */
+.mailbox-item {
+  background: #ffffff !important;
+  border: 1px solid #f3f4f6 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.mailbox-item::before {
+  background: #4f46e5 !important;
+}
+
+.mailbox-item:hover {
+  transform: translateX(2px) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+  background: #f9fafb !important;
+}
+
+.mailbox-item.pinned {
+  background: rgba(217, 119, 6, 0.04) !important;
+  border-left: 3px solid #d97706 !important;
+}
+
+.mailbox-item.pinned:hover {
+  transform: translateX(2px) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* ===== Clean Role Badges ===== */
+.role-badge {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.role-badge:hover {
+  transform: none !important;
+}
+
+.role-user {
+  background: #f3f4f6 !important;
+  border: 1px solid #e5e7eb !important;
+  color: #475569 !important;
+  box-shadow: none !important;
+}
+
+.role-admin {
+  background: rgba(5, 150, 105, 0.08) !important;
+  border: 1px solid rgba(5, 150, 105, 0.2) !important;
+  color: #059669 !important;
+  box-shadow: none !important;
+}
+
+.role-super {
+  background: #4f46e5 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* ===== Clean Status Badges ===== */
+.status-badge {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.status-badge::before {
+  display: none !important;
+}
+
+.status-badge:hover::before {
+  display: none !important;
+}
+
+.status-queued {
+  color: #b45309 !important;
+  background: rgba(217, 119, 6, 0.08) !important;
+  border-color: rgba(217, 119, 6, 0.2) !important;
+  box-shadow: none !important;
+}
+
+.status-delivered {
+  color: #047857 !important;
+  background: rgba(5, 150, 105, 0.08) !important;
+  border-color: rgba(5, 150, 105, 0.2) !important;
+  box-shadow: none !important;
+}
+
+.status-failed {
+  color: #b91c1c !important;
+  background: rgba(220, 38, 38, 0.08) !important;
+  border-color: rgba(220, 38, 38, 0.2) !important;
+  box-shadow: none !important;
+}
+
+.status-processing {
+  color: #1d4ed8 !important;
+  background: rgba(79, 70, 229, 0.08) !important;
+  border-color: rgba(79, 70, 229, 0.2) !important;
+  box-shadow: none !important;
+}
+
+/* ===== Clean Input/Select ===== */
+.input,
+.select,
+.textarea,
+.field-input,
+.field-textarea,
+.sidebar-search-input,
+.custom-input {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus,
+.field-input:focus,
+.field-textarea:focus,
+.sidebar-search-input:focus,
+.custom-input:focus {
+  border-color: #4f46e5 !important;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1) !important;
+  transform: none !important;
+}
+
+/* ===== Clean Segmented Control ===== */
+.view-switch {
+  background: #f3f4f6 !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+.seg-btn[aria-pressed="true"] {
+  background: #ffffff !important;
+  color: #4f46e5 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06) !important;
+}
+
+.seg-btn:hover {
+  background: rgba(79, 70, 229, 0.06) !important;
+  color: #4f46e5 !important;
+}
+
+/* ===== Clean Modal ===== */
+.modal {
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+  background: rgba(0, 0, 0, 0.4) !important;
+}
+
+.modal-card {
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
+  border-radius: 14px !important;
+}
+
+.modal-header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #f3f4f6 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.modal-header::before {
+  display: none !important;
+}
+
+.modal-body {
+  background: #ffffff !important;
+}
+
+/* ===== Clean Demo Banner ===== */
+.demo-banner {
+  background: #fef3c7 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.demo-banner::before {
+  display: none !important;
+}
+
+/* ===== Clean Footer ===== */
+.footer {
+  color: #94a3b8 !important;
+}
+
+/* ===== Clean Config Items ===== */
+.range-display {
+  background: rgba(79, 70, 229, 0.06) !important;
+  border: 1px solid rgba(79, 70, 229, 0.12) !important;
+}
+
+.len-value {
+  color: #4f46e5 !important;
+}
+
+.len-unit {
+  color: #4f46e5 !important;
+}
+
+/* ===== Clean Mailbox Cards (Overview Page) ===== */
+.mailbox-card {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-radius: 12px !important;
+}
+
+.mailbox-card::before {
+  display: none !important;
+}
+
+.mailbox-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+  border-color: #d1d5db !important;
+  background: #ffffff !important;
+}
+
+.mailbox-card:active {
+  transform: translateY(-1px) !important;
+}
+
+.mailbox-card.pinned {
+  border-color: rgba(217, 119, 6, 0.3) !important;
+  background: rgba(217, 119, 6, 0.02) !important;
+}
+
+/* ===== Clean Admin Page ===== */
+.admin-page .card {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+/* ===== Clean Quota Display ===== */
+.quota-display.admin-quota {
+  background: rgba(79, 70, 229, 0.06) !important;
+  border-color: rgba(79, 70, 229, 0.15) !important;
+  color: #4f46e5 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.quota-display.admin-quota::before {
+  display: none !important;
+}
+
+/* ===== Clean Loading States ===== */
+.loading-enhanced::after {
+  display: none !important;
+}
+
+.spinner {
+  border-color: rgba(79, 70, 229, 0.15) !important;
+  border-top-color: #4f46e5 !important;
+}
+
+/* ===== Clean Table (Admin) ===== */
+.table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+.table th {
+  background: #f9fafb !important;
+  font-weight: 600 !important;
+  color: #475569 !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+.table td {
+  border-bottom: 1px solid #f3f4f6 !important;
+}
+
+.table tbody tr:hover td {
+  background: #f9fafb !important;
+}
+
+/* ===== Clean Pagination ===== */
+.pager,
+.pagination-controls {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+/* ===== Clean Toast ===== */
+.toast {
+  border-radius: 10px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ===== Clean Search & Filters (Mailboxes Page) ===== */
+.searchbar .search-input {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: none !important;
+}
+
+.searchbar .search-input:focus {
+  border-color: #4f46e5 !important;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1) !important;
+}
+
+.filter-select {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+.filter-select:focus {
+  border-color: #4f46e5 !important;
+}
+
+/* ===== Clean Batch Action Buttons ===== */
+.batch-actions .btn-ghost {
+  border: 1px solid #e5e7eb !important;
+  border-style: solid !important;
+  background: #ffffff !important;
+  border-radius: 8px !important;
+}
+
+.batch-actions .btn-ghost:hover {
+  background: rgba(79, 70, 229, 0.06) !important;
+  border-color: #4f46e5 !important;
+  color: #4f46e5 !important;
+}
+
+/* ===== Smooth Selection State ===== */
+.card.selected,
+.card.active {
+  border-color: #4f46e5 !important;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15) !important;
+}
+
+/* ===== Clean Confirm Dialog ===== */
+.confirm-card {
+  border-radius: 14px !important;
+}
+
+.confirm-message {
+  color: #475569 !important;
+}
+
+/* ===== Clean View Toggle ===== */
+.view-toggle .btn-ghost {
+  border: 1px solid #e5e7eb !important;
+  border-style: solid !important;
+}
+
+.view-toggle .btn-ghost.active {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+  border-color: #4f46e5 !important;
+}
+
+/* ===== Disable Excessive Animations ===== */
+@keyframes backgroundFloat {
+  0%, 100% { transform: none; }
+}
+
+@keyframes backgroundPulse {
+  0%, 100% { opacity: 1; }
+}
+
+@keyframes bannerShimmer {
+  0%, 100% { left: -100%; }
+}
+
+@keyframes sidebarPulse {
+  0%, 100% { box-shadow: none; }
+}
+
+@keyframes gradientFlow {
+  0%, 100% { background-position: 0% 50%; }
+}
+
+@keyframes emailShine {
+  0%, 100% { opacity: 0; }
+}
+
+@keyframes emailGenerated {
+  0%, 100% { transform: none; opacity: 1; }
+}
+
+/* ===== Clean Subpage (Assign User) ===== */
+.subpage-content {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 14px !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
+}
+
+.subpage-header {
+  border-bottom: 1px solid #f3f4f6 !important;
+}
+
+/* ===== Clean Control Row ===== */
+.control-row {
+  background: #f9fafb !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+/* ===== Dark Mode Override ===== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface: #0f172a;
+    --card: #1e293b;
+    --card-hover: #1e293b;
+    --card-glass: rgba(30, 41, 59, 0.95);
+    --card-glass-hover: rgba(30, 41, 59, 0.98);
+    --text: #f1f5f9;
+    --text-light: #e2e8f0;
+    --text-muted: #94a3b8;
+    --border: #334155;
+    --border-light: #1e293b;
+    --border-glass: #334155;
+    --primary: #818cf8;
+    --primary-hover: #6366f1;
+    --primary-light: rgba(129, 140, 248, 0.1);
+    --primary-gradient: #818cf8;
+  }
+
+  body {
+    background: #0f172a !important;
+  }
+
+  .admin-page {
+    background: #0f172a !important;
+  }
+
+  .topbar {
+    background: #1e293b !important;
+    border-bottom-color: #334155 !important;
+  }
+
+  .card,
+  .sidebar,
+  .modal-card,
+  .modal-header,
+  .modal-body {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+  }
+
+  .brand span,
+  .brand .brand-text {
+    -webkit-text-fill-color: #f1f5f9 !important;
+  }
+
+  .nav-actions .btn-ghost {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    color: #e2e8f0 !important;
+  }
+
+  .nav-actions .btn-ghost:hover {
+    background: #334155 !important;
+    border-color: #475569 !important;
+    color: #f1f5f9 !important;
+  }
+
+  .input,
+  .select,
+  .textarea,
+  .field-input,
+  .field-textarea {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+    color: #f1f5f9 !important;
+  }
+
+  .btn-generate {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    color: #f1f5f9 !important;
+  }
+
+  .btn-secondary,
+  .topbar .btn-secondary {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    color: #e2e8f0 !important;
+  }
+
+  .email-display {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+  }
+
+  .mailbox-item {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+  }
+
+  .mailbox-card {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+  }
+
+  .table th {
+    background: #0f172a !important;
+    color: #e2e8f0 !important;
+    border-bottom-color: #334155 !important;
+  }
+
+  .table td {
+    border-bottom-color: #1e293b !important;
+  }
+
+  .table tbody tr:hover td {
+    background: rgba(255, 255, 255, 0.03) !important;
+  }
+
+  .mailbox-actions .btn-secondary,
+  .mailbox-actions .btn-ghost {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    color: #e2e8f0 !important;
+  }
+
+  .view-switch {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+  }
+
+  .seg-btn[aria-pressed="true"] {
+    background: #1e293b !important;
+  }
+}

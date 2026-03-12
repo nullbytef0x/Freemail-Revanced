@@ -1,0 +1,255 @@
+<div class="topbar">
+  <div class="brand">
+    <span class="brand-icon">📧</span>
+    <span class="brand-text">Freemail Revanced</span>
+  </div>
+  <div id="role-badge" class="role-badge" title="Welcome"></div>
+  <div class="nav-actions">
+    <a id="repo" class="btn btn-ghost" href="https://github.com/idinging/freemail" target="_blank" rel="noopener noreferrer" title="GitHub Repository">
+      <span class="btn-icon">🔗</span>
+      <span class="btn-text">GitHub</span>
+    </a>
+    <a id="admin" class="btn btn-ghost" href="/templates/loading.html?redirect=%2Fadmin.html&status=%E6%AD%A3%E5%9C%A8%E6%A0%A1%E9%AA%8C%E6%9D%83%E9%99%90%E2%80%A6" title="User Management" style="display:none">
+      <span class="btn-icon">🛠️</span>
+      <span class="btn-text">User Management</span>
+    </a>
+    <a id="all-mailboxes" class="btn btn-ghost" href="/templates/loading.html?redirect=%2Fhtml%2Fmailboxes.html&status=%E6%AD%A3%E5%9C%A8%E6%89%93%E5%BC%80%E9%82%AE%E7%AE%B1%E6%80%BB%E8%A7%88%E9%A1%B5%E9%9D%A2%E2%80%A6" title="All Mailboxes" style="display:none">
+      <span class="btn-icon">📦</span>
+      <span class="btn-text">All Mailboxes</span>
+    </a>
+    <button id="logout" class="btn btn-secondary" title="Log Out">
+      <span class="btn-icon">🚪</span>
+      <span class="btn-text">Log Out</span>
+    </button>
+  </div>
+  </div>
+  <div class="toast" id="toast"></div>
+  <div class="container">
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h3>
+          <span class="sidebar-icon">📨</span>
+          <span class="sidebar-title">History</span>
+        </h3>
+        <div class="sidebar-header-actions">
+          <span id="quota" class="quota-display"></span>
+          <button id="sidebar-toggle" class="sidebar-toggle-btn" title="Collapse sidebar">
+            <span id="sidebar-toggle-icon">◀</span>
+          </button>
+          <button id="mb-toggle" class="sidebar-toggle-btn" title="Toggle history">
+            <span id="mb-toggle-icon">▾</span>
+          </button>
+        </div>
+      </div>
+      <div class="sidebar-search">
+        <input id="mb-search" class="input sidebar-search-input" placeholder="Search history" />
+      </div>
+      <div id="mb-list"></div>
+      <div id="mb-loading" style="margin-top:12px"></div>
+      <div id="mb-pager" class="pager" style="display:none;margin-top:16px">
+        <button id="mb-prev" class="btn btn-ghost btn-sm">Previous</button>
+        <span id="mb-page-info" class="muted" style="min-width:100px;text-align:center"></span>
+        <button id="mb-next" class="btn btn-ghost btn-sm">Next</button>
+      </div>
+    </div>
+    <div class="main">
+      <div class="card generate-card">
+        <h2>
+          <span class="card-icon">✨</span>
+          Generate Temporary Email
+        </h2>
+        
+        <div class="mailbox-layout">
+          <!-- Left: Email address display -->
+          <div class="mailbox-display-section">
+            <div class="mailbox-display-content">
+              <div class="section-header">
+                <span class="section-icon">📧</span>
+                <span class="section-title">Current Email</span>
+              </div>
+              <div id="email" class="email-display">
+                <span id="email-text" class="email-text"><span class="placeholder-text">Click generate button to create an email address</span></span>
+                <div id="custom-overlay" class="custom-overlay" style="display:none">
+                  <input id="custom-local-overlay" class="input custom-input" type="text" placeholder="Letters/numbers/._- only" />
+                  <button id="create-custom-overlay" class="btn btn-primary btn-sm">Create</button>
+                </div>
+              </div>
+            </div>
+            <div class="mailbox-actions" id="email-actions" style="display:none">
+              <button id="copy" class="btn btn-secondary" style="width:100%">
+                <span class="btn-icon">📋</span>
+                <span>Copy Email ✨</span>
+              </button>
+              <button id="compose" class="btn btn-primary" style="width:100%">
+                <span class="btn-icon">✉️</span>
+                <span>Send Email</span>
+              </button>
+              <button id="clear" class="btn btn-danger" style="width:100%">
+                <span class="btn-icon">🗑️</span>
+                <span>Clear Emails 💥</span>
+              </button>
+              <button id="refresh" class="btn btn-ghost" style="width:100%">
+                <span class="btn-icon">🔄</span>
+                <span>Refresh 📬</span>
+              </button>
+              <button id="forward-setting" class="btn btn-ghost" style="width:100%">
+                <span class="btn-icon">↪️</span>
+                <span>Forwarding</span>
+              </button>
+              <button id="toggle-favorite" class="btn btn-ghost" style="width:100%">
+                <span class="btn-icon" id="favorite-icon">☆</span>
+                <span id="favorite-text">Favorite</span>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Right: Email settings -->
+          <div class="mailbox-config-section">
+            <div class="section-header">
+              <span class="section-icon">⚙️</span>
+              <span class="section-title">Email Settings</span>
+              <button id="config-toggle" class="sidebar-toggle-btn" title="Toggle settings">
+                <span id="config-toggle-icon">▾</span>
+              </button>
+            </div>
+            <div class="config-form">
+              <div class="config-item">
+                <label class="config-label">
+                  <span class="label-icon">🌐</span>
+                  <span>Domain</span>
+                </label>
+                <select id="domain-select" class="select config-select"></select>
+              </div>
+              <div class="config-item">
+                <label class="config-label">
+                  <span class="label-icon">📏</span>
+                  <span>Username Length</span>
+                </label>
+                <div class="range-container">
+                  <input id="len-range" class="range" type="range" min="8" max="30" step="1" value="8" />
+                  <div class="range-display">
+                    <span id="len-val" class="len-value">8</span>
+                    <span class="len-unit">chars</span>
+                  </div>
+                </div>
+              </div>
+               <div class="generate-action">
+                 <div class="generate-buttons" style="display: flex; gap: 8px; margin-bottom: 8px; width: 100%;">
+                   <button id="gen" class="btn btn-generate" style="flex: 1;">
+                     <span class="btn-icon">🎲</span>
+                     <span>Random</span>
+                   </button>
+                   <button id="gen-name" class="btn btn-primary" style="flex: 1;" title="Generate email with random name">
+                     <span class="btn-icon">👤</span>
+                     <span>Random Name</span>
+                   </button>
+                 </div>
+                 <button id="toggle-custom" class="btn btn-secondary btn-sm" style="width: 100%;" title="Custom email">Custom</button>
+               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card inbox-card" id="list-card" style="display:none">
+        <div class="listcard-header">
+          <h2 class="listcard-title">
+            <span class="card-icon" id="box-icon">📬</span>
+            <span id="box-title">Inbox</span>
+          </h2>
+          <div class="view-switch">
+            <button id="tab-inbox" class="seg-btn" aria-pressed="true">Inbox</button>
+            <button id="tab-sent" class="seg-btn" aria-pressed="false">Sent</button>
+          </div>
+          <div id="list-status" class="loading-indicator" style="pointer-events:none" role="status" aria-live="polite">
+            <div id="list-spinner" class="spinner"></div>
+            <span id="list-status-text">Loading...</span>
+          </div>
+        </div>
+        <div class="list-viewport" style="position:relative;contain:layout paint;isolation:isolate;">
+          <div id="list" class="list"></div>
+          <div id="list-pager" class="pager" style="display:none">
+            <button id="prev-page" class="btn btn-ghost btn-sm">Previous</button>
+            <span id="page-info" class="muted" style="min-width:100px;text-align:center"></span>
+            <button id="next-page" class="btn btn-ghost btn-sm">Next</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="footer-slot"></div>
+
+  <div class="modal" id="email-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div id="modal-subject">
+          <span class="modal-icon">📧</span>
+          <span>Email Details</span>
+        </div>
+        <button id="modal-close" class="close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="modal-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="confirm-modal">
+    <div class="modal-card confirm-card">
+      <div class="modal-header confirm-header">
+        <div>
+          <span class="modal-icon">⚠️</span>
+          <span>Confirm Action</span>
+        </div>
+        <button id="confirm-close" class="close">✕</button>
+      </div>
+      <div class="modal-body confirm-body">
+        <div id="confirm-message" class="confirm-message"></div>
+        <div class="confirm-actions">
+          <button id="confirm-cancel" class="btn btn-secondary">Cancel</button>
+          <button id="confirm-ok" class="btn btn-danger">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="compose-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <span class="modal-icon">✉️</span>
+          <span>New Email</span>
+        </div>
+        <button id="compose-close" class="close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="compose-form">
+          <div class="field-group">
+            <label class="field-label">To</label>
+            <input id="compose-to" class="input field-input" type="text" placeholder="foo@example.com, bar@example.com" />
+            <div class="field-hint">Separate multiple addresses with commas</div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">From Name (optional)</label>
+            <input id="compose-from-name" class="input field-input" type="text" placeholder="e.g.: Support Team" />
+          </div>
+          <div class="field-group">
+            <label class="field-label">Subject</label>
+            <input id="compose-subject" class="input field-input" type="text" placeholder="Subject" />
+          </div>
+          <div class="field-group">
+            <label class="field-label">Content</label>
+            <textarea id="compose-body" class="textarea field-textarea" rows="10" placeholder="Enter email content"></textarea>
+          </div>
+          <div class="compose-actions">
+            <button id="compose-cancel" class="btn btn-secondary">Cancel</button>
+            <button id="compose-send" class="btn btn-primary">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+
+
