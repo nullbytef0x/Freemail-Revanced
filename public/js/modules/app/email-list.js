@@ -141,7 +141,7 @@ export function renderEmailItem(email, isMobile = false) {
     preview = rawContent.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
     const codeMatch = (e.verification_code || '').toString().trim() || extractCode(rawContent);
     if (codeMatch) {
-      preview = `验证码: ${codeMatch} | ${preview}`;
+      preview = `Code: ${codeMatch} | ${preview}`;
     }
     preview = preview.slice(0, 20);
   }
@@ -156,15 +156,15 @@ export function renderEmailItem(email, isMobile = false) {
     const arr = raw.split(',').map(s => s.trim()).filter(Boolean);
     if (arr.length) {
       recipientsDisplay = arr.slice(0, 2).join(', ');
-      if (arr.length > 2) recipientsDisplay += ` 等${arr.length}人`;
+      if (arr.length > 2) recipientsDisplay += ` +${arr.length - 2} more`;
     } else {
       recipientsDisplay = raw;
     }
   }
   
-  const subjectText = escapeHtml(e.subject || '(无主题)');
+  const subjectText = escapeHtml(e.subject || '(No subject)');
   const previewText = escapeHtml(preview);
-  const metaLabel = isSentView ? '收件人' : '发件人';
+  const metaLabel = isSentView ? 'Recipient' : 'Sender';
   const metaText = isSentView ? escapeHtml(recipientsDisplay) : senderText;
   const timeDisplay = isMobile ? formatTsMobile(e.received_at || e.created_at) : formatTs(e.received_at || e.created_at);
   
@@ -176,16 +176,16 @@ export function renderEmailItem(email, isMobile = false) {
       </div>
       <div class="email-content">
         <div class="email-main">
-          <div class="email-line"><span class="label-chip">主题</span><span class="value-text subject">${subjectText}</span></div>
-          <div class="email-line"><span class="label-chip">内容</span>${hasContent ? `<span class="email-preview value-text">${previewText}</span>` : '<span class="email-preview value-text" style="color:#94a3b8">(暂无预览)</span>'}</div>
+          <div class="email-line"><span class="label-chip">Subject</span><span class="value-text subject">${subjectText}</span></div>
+          <div class="email-line"><span class="label-chip">Content</span>${hasContent ? `<span class="email-preview value-text">${previewText}</span>` : '<span class="email-preview value-text" style="color:#94a3b8">(No preview)</span>'}</div>
         </div>
         <div class="email-actions">
           ${isSentView ? `
             <span class="status-badge ${statusClass(e.status)}">${e.status || 'unknown'}</span>
-            <button class="btn btn-danger btn-sm" onclick="deleteSent(${e.id});event.stopPropagation()" title="删除记录"><span class="btn-icon">🗑️</span></button>
+            <button class="btn btn-danger btn-sm" onclick="deleteSent(${e.id});event.stopPropagation()" title="Delete record"><span class="btn-icon">🗑️</span></button>
           ` : `
-            <button class="btn btn-secondary btn-sm" data-code="${listCode || ''}" onclick="copyFromList(event, ${e.id});event.stopPropagation()" title="复制内容或验证码"><span class="btn-icon">📋</span></button>
-            <button class="btn btn-danger btn-sm" onclick="deleteEmail(${e.id});event.stopPropagation()" title="删除邮件"><span class="btn-icon">🗑️</span></button>
+            <button class="btn btn-secondary btn-sm" data-code="${listCode || ''}" onclick="copyFromList(event, ${e.id});event.stopPropagation()" title="Copy content or code"><span class="btn-icon">📋</span></button>
+            <button class="btn btn-danger btn-sm" onclick="deleteEmail(${e.id});event.stopPropagation()" title="Delete email"><span class="btn-icon">🗑️</span></button>
           `}
         </div>
       </div>

@@ -410,6 +410,12 @@ body::after{
   filter: drop-shadow(0 2px 4px rgba(99, 102, 241, 0.3));
 }
 
+.brand-icon-img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+
 /* 增强角色徽章 */
 .role-badge{ 
   margin-left: 12px; 

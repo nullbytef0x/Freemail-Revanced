@@ -13,12 +13,12 @@ import { formatTime } from './email-list.js';
  */
 export function renderEmailDetail(email) {
   if (!email) {
-    return '<div class="empty-detail">请选择一封邮件</div>';
+    return '<div class="empty-detail">Please select an email</div>';
   }
   
-  const sender = escapeHtml(email.sender || '未知发件人');
+  const sender = escapeHtml(email.sender || 'Unknown sender');
   const to = escapeHtml(email.to_addrs || '');
-  const subject = escapeHtml(email.subject || '(无主题)');
+  const subject = escapeHtml(email.subject || '(No subject)');
   const receivedAt = formatTime(email.received_at);
   const verificationCode = email.verification_code || '';
   
@@ -37,23 +37,23 @@ export function renderEmailDetail(email) {
         <h2 class="detail-subject">${subject}</h2>
         <div class="detail-meta">
           <div class="meta-row">
-            <span class="meta-label">发件人：</span>
+            <span class="meta-label">Sender:</span>
             <span class="meta-value">${sender}</span>
           </div>
           ${to ? `
             <div class="meta-row">
-              <span class="meta-label">收件人：</span>
+              <span class="meta-label">Recipient:</span>
               <span class="meta-value">${to}</span>
             </div>
           ` : ''}
           <div class="meta-row">
-            <span class="meta-label">时间：</span>
+            <span class="meta-label">Time:</span>
             <span class="meta-value">${receivedAt}</span>
           </div>
           ${verificationCode ? `
             <div class="meta-row verification-code">
-              <span class="meta-label">验证码：</span>
-              <span class="meta-value code-value" title="点击复制">${escapeHtml(verificationCode)}</span>
+              <span class="meta-label">Code:</span>
+              <span class="meta-value code-value" title="Click to copy">${escapeHtml(verificationCode)}</span>
             </div>
           ` : ''}
         </div>
@@ -112,8 +112,8 @@ export function sanitizeHtml(html) {
 export function renderEmailModal(email) {
   if (!email) return '';
   
-  const subject = escapeHtml(email.subject || '(无主题)');
-  const sender = escapeHtml(email.sender || '未知发件人');
+  const subject = escapeHtml(email.subject || '(No subject)');
+  const sender = escapeHtml(email.sender || 'Unknown sender');
   const to = escapeHtml(email.to_addrs || '');
   const receivedAt = formatTime(email.received_at);
   const verificationCode = email.verification_code || '';
@@ -131,13 +131,13 @@ export function renderEmailModal(email) {
       <button class="modal-close" data-action="close">&times;</button>
     </div>
     <div class="modal-meta">
-      <p><strong>发件人：</strong>${sender}</p>
-      ${to ? `<p><strong>收件人：</strong>${to}</p>` : ''}
-      <p><strong>时间：</strong>${receivedAt}</p>
+      <p><strong>Sender:</strong>${sender}</p>
+      ${to ? `<p><strong>Recipient:</strong>${to}</p>` : ''}
+      <p><strong>Time:</strong>${receivedAt}</p>
       ${verificationCode ? `
         <p class="verification-code">
-          <strong>验证码：</strong>
-          <span class="code-value" data-code="${escapeAttr(verificationCode)}" title="点击复制">${escapeHtml(verificationCode)}</span>
+          <strong>Code:</strong>
+          <span class="code-value" data-code="${escapeAttr(verificationCode)}" title="Click to copy">${escapeHtml(verificationCode)}</span>
         </p>
       ` : ''}
     </div>
@@ -145,8 +145,8 @@ export function renderEmailModal(email) {
       ${content}
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger" data-action="delete" data-email-id="${email.id}">删除邮件</button>
-      <button class="btn btn-secondary" data-action="close">关闭</button>
+      <button class="btn btn-danger" data-action="delete" data-email-id="${email.id}">Delete Email</button>
+      <button class="btn btn-secondary" data-action="close">Close</button>
     </div>
   `;
 }

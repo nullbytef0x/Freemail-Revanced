@@ -72,12 +72,12 @@ export function mockGenerateId(length = 8) {
  */
 export function buildMockEmails(count = 6) {
   const subjects = [
-    '欢迎注册我们的服务',
-    '您的验证码是 123456',
-    '账户安全提醒',
-    '订单确认通知',
-    '密码重置请求',
-    '新消息提醒'
+    'Welcome to our service',
+    'Your verification code is 123456',
+    'Account security alert',
+    'Order confirmation',
+    'Password reset request',
+    'New message notification'
   ];
   const senders = [
     'noreply@example.com',
@@ -92,7 +92,7 @@ export function buildMockEmails(count = 6) {
     subject: subjects[i % subjects.length],
     received_at: new Date(Date.now() - i * 3600000).toISOString().replace('T', ' ').slice(0, 19),
     is_read: i > 2 ? 1 : 0,
-    preview: '这是一封演示邮件的预览内容...',
+    preview: 'This is a preview of a demo email...',
     verification_code: i === 1 ? '123456' : null
   }));
 }
@@ -107,9 +107,9 @@ export function buildMockEmailDetail(id) {
     id,
     sender: 'demo@example.com',
     to_addrs: 'test@example.com',
-    subject: '演示邮件 #' + id,
-    content: '这是演示模式下的邮件内容。\n\n您的验证码是：123456\n\n请勿将此验证码告诉他人。',
-    html_content: '<p>这是演示模式下的邮件内容。</p><p><strong>您的验证码是：123456</strong></p><p>请勿将此验证码告诉他人。</p>',
+    subject: 'Demo Email #' + id,
+    content: 'This is demo mode email content.\n\nYour verification code is: 123456\n\nDo not share this code with others.',
+    html_content: '<p>This is demo mode email content.</p><p><strong>Your verification code is: 123456</strong></p><p>Do not share this code with others.</p>',
     received_at: new Date().toISOString().replace('T', ' ').slice(0, 19),
     is_read: 1,
     verification_code: '123456'

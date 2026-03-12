@@ -34,8 +34,8 @@ export function renderMailboxItem(mailbox, isActive = false) {
         <span class="time">${time}</span>
       </div>
       <div class="mailbox-actions">
-        <button class="btn btn-ghost btn-sm pin" onclick="togglePin(event,'${address}')" title="${m.is_pinned ? '取消置顶' : '置顶'}">${m.is_pinned ? '📌' : '📍'}</button>
-        <button class="btn btn-ghost btn-sm del" onclick="deleteMailbox(event,'${address}')" title="删除">🗑️</button>
+        <button class="btn btn-ghost btn-sm pin" onclick="togglePin(event,'${address}')" title="${m.is_pinned ? 'Unpin' : 'Pin'}">${m.is_pinned ? '📌' : '📍'}</button>
+        <button class="btn btn-ghost btn-sm del" onclick="deleteMailbox(event,'${address}')" title="Delete">🗑️</button>
       </div>
     </div>`;
 }
@@ -49,7 +49,7 @@ export function renderMailboxList(mailboxes, container) {
   if (!container) return;
   
   if (!mailboxes || mailboxes.length === 0) {
-    container.innerHTML = '<div class="empty-state" style="text-align:center;color:#64748b;padding:20px">暂无邮箱</div>';
+    container.innerHTML = '<div class="empty-state" style="text-align:center;color:#64748b;padding:20px">No mailboxes</div>';
     return;
   }
   

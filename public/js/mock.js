@@ -14,10 +14,10 @@
   function buildMockEmails(count){
     const now = Date.now();
     const templates = [
-      (code)=>`您的验证码为 ${code}，5 分钟内有效`,
+      (code)=>`Your verification code is ${code}, valid for 5 minutes`,
       (code)=>`Your verification code is ${code}. It expires in 5 minutes`,
       (code)=>`One-time code: ${code}`,
-      (code)=>`安全验证 · 验证码 ${code}`,
+      (code)=>`Security verification · code ${code}`,
       (code)=>`Login code is ${code}`,
     ];
     return Array.from({length: count||6}).map((_, i) => {
@@ -29,8 +29,8 @@
         subject: templates[i%templates.length](code),
         received_at: formatTs(now - i*600000),
         is_read: i>1,
-        content: `您好，您正在体验演示模式。验证码: ${code} ，请在 5 分钟内完成验证。`,
-        html_content: `<p>您好，您正在体验 <strong>演示模式</strong>。</p><p><strong>验证码: ${code}</strong></p>`
+        content: `Hello, you are using demo mode. Verification code: ${code}. Please complete verification within 5 minutes.`,
+        html_content: `<p>Hello, you are using <strong>demo mode</strong>.</p><p><strong>Verification code: ${code}</strong></p>`
       };
     });
   }
@@ -54,10 +54,10 @@
     return {
       id: Number(id)||10000,
       sender: 'noreply@example.com',
-      subject: `演示邮件内容（验证码 ${code}）`,
+      subject: `Demo email content (code ${code})`,
       received_at: formatTs(Date.now()),
-      content: `这是演示模式下的邮件内容，仅用于展示界面效果。验证码：${code}`,
-      html_content: `<p><strong>演示模式</strong>：该内容为模拟数据。</p><p>验证码：<strong>${code}</strong></p>`
+      content: `This is demo-mode email content for UI preview only. Code: ${code}`,
+      html_content: `<p><strong>Demo mode</strong>: this content is simulated data.</p><p>Code: <strong>${code}</strong></p>`
     };
   }
 

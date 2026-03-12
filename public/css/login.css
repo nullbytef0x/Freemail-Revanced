@@ -207,6 +207,13 @@ body::after {
   z-index: 1;
 }
 
+.logo-image {
+  width: 72px;
+  height: 72px;
+  display: block;
+  margin: 0 auto;
+}
+
 @keyframes logoFloat {
   0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
   25% { transform: translateY(-6px) rotate(-2deg) scale(1.02); }

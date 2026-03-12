@@ -281,6 +281,12 @@ body {
   font-size: 28px;
 }
 
+.brand-icon-img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
 .nav-actions {
   display: flex;
   align-items: center;

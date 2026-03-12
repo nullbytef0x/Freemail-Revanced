@@ -64,16 +64,16 @@ export function applySessionUI(session) {
       badge.className = 'role-badge';
       if (session.strictAdmin) {
         badge.classList.add('role-super');
-        badge.textContent = '超级管理员';
+        badge.textContent = 'Super Admin';
       } else if (session.role === 'admin') {
         badge.classList.add('role-admin');
-        badge.textContent = `高级用户：${session.username || ''}`;
+        badge.textContent = `Admin: ${session.username || ''}`;
       } else if (session.role === 'user') {
         badge.classList.add('role-user');
-        badge.textContent = `用户：${session.username || ''}`;
+        badge.textContent = `User: ${session.username || ''}`;
       } else if (session.role === 'guest') {
         badge.classList.add('role-user');
-        badge.textContent = '演示模式';
+        badge.textContent = 'Demo Mode';
       }
     }
     
@@ -131,7 +131,7 @@ export async function validateSession() {
 export function showGuestBanner() {
   const bar = document.createElement('div');
   bar.className = 'demo-banner';
-  bar.innerHTML = '👀 当前为 <strong>观看模式</strong>（模拟数据，仅演示）。要接收真实邮件，请自建部署或联系部署。';
+  bar.innerHTML = '👀 You are in <strong>view-only demo mode</strong> (simulated data). For real email delivery, deploy your own instance.';
   document.body.prepend(bar);
 }
 

@@ -76,10 +76,10 @@ export function renderMailboxCard(mailbox, options = {}) {
   return `
     <div class="mailbox-card ${isPinned ? 'pinned' : ''}" data-address="${escapedAddress}">
       <div class="card-header">
-        <div class="pin-status" title="${isPinned ? '已置顶' : '未置顶'}">
+        <div class="pin-status" title="${isPinned ? 'Pinned' : 'Not pinned'}">
           ${isPinned ? '📌' : ''}
         </div>
-        <div class="favorite-status ${isFavorite ? 'active' : ''}" title="${isFavorite ? '已收藏' : '未收藏'}">
+        <div class="favorite-status ${isFavorite ? 'active' : ''}" title="${isFavorite ? 'Favorited' : 'Not favorited'}">
           ${isFavorite ? '⭐' : '☆'}
         </div>
       </div>
@@ -88,24 +88,24 @@ export function renderMailboxCard(mailbox, options = {}) {
         <div class="mailbox-address" title="${escapedAddress}">${displayAddress}</div>
         <div class="mailbox-meta">
           <span class="created-time">${createdAt}</span>
-          ${forwardTo ? `<span class="forward-indicator" title="转发至: ${escapeAttr(forwardTo)}">📤</span>` : ''}
-          ${canLogin ? '<span class="login-indicator" title="可登录">🔑</span>' : ''}
+          ${forwardTo ? `<span class="forward-indicator" title="Forward to: ${escapeAttr(forwardTo)}">📤</span>` : ''}
+          ${canLogin ? '<span class="login-indicator" title="Login enabled">🔑</span>' : ''}
         </div>
       </div>
       
       <div class="card-actions">
-        <button class="btn btn-sm btn-copy" data-action="copy" title="复制地址">📋</button>
-        <button class="btn btn-sm btn-jump" data-action="jump" title="查看邮件">📧</button>
-        <button class="btn btn-sm btn-pin ${isPinned ? 'active' : ''}" data-action="pin" title="${isPinned ? '取消置顶' : '置顶'}">📍</button>
-        <button class="btn btn-sm btn-favorite ${isFavorite ? 'active' : ''}" data-action="favorite" title="${isFavorite ? '取消收藏' : '收藏'}">⭐</button>
-        <button class="btn btn-sm btn-more" data-action="more" title="更多操作">⋯</button>
+        <button class="btn btn-sm btn-copy" data-action="copy" title="Copy address">📋</button>
+        <button class="btn btn-sm btn-jump" data-action="jump" title="View emails">📧</button>
+        <button class="btn btn-sm btn-pin ${isPinned ? 'active' : ''}" data-action="pin" title="${isPinned ? 'Unpin' : 'Pin'}">📍</button>
+        <button class="btn btn-sm btn-favorite ${isFavorite ? 'active' : ''}" data-action="favorite" title="${isFavorite ? 'Unfavorite' : 'Favorite'}">⭐</button>
+        <button class="btn btn-sm btn-more" data-action="more" title="More actions">⋯</button>
       </div>
       
       <div class="card-dropdown" style="display: none;">
-        <button class="dropdown-item" data-action="forward">📤 设置转发</button>
-        <button class="dropdown-item" data-action="toggle-login">🔑 ${canLogin ? '禁止登录' : '允许登录'}</button>
-        <button class="dropdown-item" data-action="change-password">🔒 ${passwordIsDefault ? '设置密码' : '修改密码'}</button>
-        <button class="dropdown-item danger" data-action="delete">🗑️ 删除邮箱</button>
+        <button class="dropdown-item" data-action="forward">📤 Set forwarding</button>
+        <button class="dropdown-item" data-action="toggle-login">🔑 ${canLogin ? 'Disable login' : 'Enable login'}</button>
+        <button class="dropdown-item" data-action="change-password">🔒 ${passwordIsDefault ? 'Set password' : 'Change password'}</button>
+        <button class="dropdown-item danger" data-action="delete">🗑️ Delete mailbox</button>
       </div>
     </div>
   `;
@@ -121,7 +121,7 @@ export function renderGridView(mailboxes, container, options = {}) {
   if (!container) return;
   
   if (!mailboxes || mailboxes.length === 0) {
-    container.innerHTML = '<div class="empty-state">暂无邮箱</div>';
+    container.innerHTML = '<div class="empty-state">No mailboxes</div>';
     return;
   }
   

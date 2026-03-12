@@ -34,26 +34,26 @@ export function openForwardDialog(mailboxId, mailboxAddress, currentForwardTo) {
   dialog.innerHTML = `
     <div class="modal-content" style="max-width: 400px;">
       <div class="modal-header">
-        <h3>转发设置</h3>
+        <h3>Forwarding Settings</h3>
         <button class="modal-close" onclick="document.getElementById('forward-dialog').remove()">×</button>
       </div>
       <div class="modal-body">
         <p style="margin-bottom: 10px; color: var(--text-secondary); font-size: 14px;">
-          邮箱: <strong>${escapeHtml(mailboxAddress)}</strong>
+          Mailbox: <strong>${escapeHtml(mailboxAddress)}</strong>
         </p>
         <div class="form-group">
-          <label for="forward-to-input">转发目标邮箱</label>
+          <label for="forward-to-input">Forward To</label>
           <input type="email" id="forward-to-input" class="form-input" 
-                 placeholder="留空则不转发" 
+                 placeholder="Leave empty to disable forwarding" 
                  value="${escapeHtml(currentForwardTo || '')}">
           <p style="margin-top: 5px; color: var(--text-tertiary); font-size: 12px;">
-            设置后，此邮箱收到的邮件将自动转发到指定地址
+            Incoming emails for this mailbox will be auto-forwarded to the target address
           </p>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" onclick="document.getElementById('forward-dialog').remove()">取消</button>
-        <button class="btn btn-primary" id="save-forward-btn">保存</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('forward-dialog').remove()">Cancel</button>
+        <button class="btn btn-primary" id="save-forward-btn">Save</button>
       </div>
     </div>
   `;
@@ -89,7 +89,7 @@ export async function saveForwardSetting(mailboxId, forwardTo) {
   const btn = document.getElementById('save-forward-btn');
   if (btn) {
     btn.disabled = true;
-    btn.textContent = '保存中...';
+    btn.textContent = 'Saving...';
   }
   
   try {
@@ -102,22 +102,22 @@ export async function saveForwardSetting(mailboxId, forwardTo) {
     const result = await resp.json();
     
     if (resp.ok && result.success) {
-      showToast(forwardTo ? `已设置转发到: ${forwardTo}` : '已取消转发', 'success');
+      showToast(forwardTo ? `Forwarding set to: ${forwardTo}` : 'Forwarding removed', 'success');
       document.getElementById('forward-dialog')?.remove();
       // 触发刷新事件
       window.dispatchEvent(new CustomEvent('mailbox-settings-updated', { 
         detail: { mailboxId, forward_to: forwardTo } 
       }));
     } else {
-      showToast(result.error || '设置失败', 'error');
+      showToast(result.error || 'Update failed', 'error');
     }
   } catch (e) {
-    console.error('保存转发设置失败:', e);
-    showToast('保存失败，请重试', 'error');
+    console.error('Failed to save forwarding settings:', e);
+    showToast('Save failed, please try again', 'error');
   } finally {
     if (btn) {
       btn.disabled = false;
-      btn.textContent = '保存';
+      btn.textContent = 'Save';
     }
   }
 }
@@ -142,7 +142,7 @@ export async function toggleFavorite(mailboxId, callback) {
     
     if (resp.ok && result.success) {
       const isFav = result.is_favorite;
-      showToast(isFav ? '已收藏' : '已取消收藏', 'success');
+      showToast(isFav ? 'Favorited' : 'Unfavorited', 'success');
       // 触发刷新事件
       window.dispatchEvent(new CustomEvent('mailbox-settings-updated', { 
         detail: { mailboxId, is_favorite: isFav } 
@@ -150,12 +150,12 @@ export async function toggleFavorite(mailboxId, callback) {
       if (callback) callback(result);
       return result;
     } else {
-      showToast(result.error || '操作失败', 'error');
+      showToast(result.error || 'Operation failed', 'error');
       return { success: false };
     }
   } catch (e) {
-    console.error('切换收藏失败:', e);
-    showToast('操作失败，请重试', 'error');
+    console.error('Failed to toggle favorite:', e);
+    showToast('Operation failed, please try again', 'error');
     return { success: false };
   }
 }
@@ -168,7 +168,7 @@ export async function toggleFavorite(mailboxId, callback) {
  */
 export async function batchSetFavorite(mailboxIds, isFavorite) {
   if (!mailboxIds || mailboxIds.length === 0) {
-    showToast('请先选择邮箱', 'warning');
+    showToast('Please select mailbox first', 'warning');
     return { success: false };
   }
   
@@ -182,16 +182,16 @@ export async function batchSetFavorite(mailboxIds, isFavorite) {
     const result = await resp.json();
     
     if (resp.ok && result.success) {
-      showToast(`已${isFavorite ? '收藏' : '取消收藏'} ${result.updated_count} 个邮箱`, 'success');
+      showToast(`${isFavorite ? 'Favorited' : 'Unfavorited'} ${result.updated_count} mailbox(es)`, 'success');
       window.dispatchEvent(new CustomEvent('mailbox-settings-batch-updated'));
       return result;
     } else {
-      showToast(result.error || '批量操作失败', 'error');
+      showToast(result.error || 'Batch operation failed', 'error');
       return { success: false };
     }
   } catch (e) {
-    console.error('批量设置收藏失败:', e);
-    showToast('操作失败，请重试', 'error');
+    console.error('Failed to apply favorite batch update:', e);
+    showToast('Operation failed, please try again', 'error');
     return { success: false };
   }
 }
@@ -205,7 +205,7 @@ export async function batchSetFavorite(mailboxIds, isFavorite) {
  */
 export function renderForwardBadge(forwardTo) {
   if (!forwardTo) return '';
-  return `<span class="badge badge-forward" title="转发到: ${escapeHtml(forwardTo)}">↪️</span>`;
+  return `<span class="badge badge-forward" title="Forward to: ${escapeHtml(forwardTo)}">↪️</span>`;
 }
 
 /**
@@ -214,7 +214,7 @@ export function renderForwardBadge(forwardTo) {
  * @returns {string} HTML 字符串
  */
 export function renderFavoriteBadge(isFavorite) {
-  return isFavorite ? '<span class="badge badge-favorite" title="已收藏">⭐</span>' : '';
+  return isFavorite ? '<span class="badge badge-favorite" title="Favorited">⭐</span>' : '';
 }
 
 /**
@@ -227,7 +227,7 @@ export function renderFavoriteBadge(isFavorite) {
 export function createForwardButton(mailboxId, mailboxAddress, forwardTo) {
   const btn = document.createElement('button');
   btn.className = 'btn btn-ghost btn-sm';
-  btn.title = forwardTo ? `转发到: ${forwardTo}` : '设置转发';
+  btn.title = forwardTo ? `Forward to: ${forwardTo}` : 'Set forwarding';
   btn.innerHTML = forwardTo ? '↪️' : '➡️';
   btn.onclick = (e) => {
     e.stopPropagation();
@@ -246,7 +246,7 @@ export function createForwardButton(mailboxId, mailboxAddress, forwardTo) {
 export function createFavoriteButton(mailboxId, isFavorite, onUpdate) {
   const btn = document.createElement('button');
   btn.className = 'btn btn-ghost btn-sm';
-  btn.title = isFavorite ? '取消收藏' : '收藏';
+  btn.title = isFavorite ? 'Unfavorite' : 'Favorite';
   btn.innerHTML = isFavorite ? '⭐' : '☆';
   btn.onclick = async (e) => {
     e.stopPropagation();

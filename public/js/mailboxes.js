@@ -102,8 +102,8 @@ async function load() {
     updatePager();
     bindCardEvents();
   } catch (e) {
-    console.error('加载失败:', e);
-    showToast('加载失败', 'error');
+    console.error('Load failed:', e);
+    showToast('Load failed', 'error');
   } finally {
     isLoading = false;
   }
@@ -112,7 +112,7 @@ async function load() {
 // 更新分页器
 function updatePager() {
   const totalPages = Math.max(1, Math.ceil(lastCount / PAGE_SIZE));
-  if (els.page) els.page.textContent = `第 ${page} / ${totalPages} 页 (共 ${lastCount} 个)`;
+  if (els.page) els.page.textContent = `${page} / ${totalPages} (total ${lastCount})`;
   if (els.prev) els.prev.disabled = page <= 1;
   if (els.next) els.next.disabled = page >= totalPages;
 }
@@ -126,7 +126,7 @@ function bindCardEvents() {
       if (e.target.closest('.actions')) return;
       const address = card.dataset.address;
       if (address) {
-        showToast('跳转中...', 'info', 500);
+        showToast('Redirecting...', 'info', 500);
         setTimeout(() => location.href = `/?mailbox=${encodeURIComponent(address)}`, 600);
       }
     };
@@ -148,11 +148,11 @@ function bindCardEvents() {
       
       switch (action) {
         case 'copy':
-          try { await navigator.clipboard.writeText(address); showToast('已复制', 'success'); }
-          catch(_) { showToast('复制失败', 'error'); }
+          try { await navigator.clipboard.writeText(address); showToast('Copied', 'success'); }
+          catch(_) { showToast('Copy failed', 'error'); }
           break;
         case 'jump':
-          showToast('跳转中...', 'info', 500);
+          showToast('Redirecting...', 'info', 500);
           setTimeout(() => location.href = `/?mailbox=${encodeURIComponent(address)}`, 600);
           break;
         case 'pin':
@@ -161,12 +161,12 @@ function bindCardEvents() {
               method: 'POST'
             });
             if (pinRes.ok) {
-              showToast('置顶状态已更新', 'success');
+              showToast('Pin status updated', 'success');
               load();
             } else {
-              showToast('操作失败', 'error');
+              showToast('Operation failed', 'error');
             }
-          } catch(e) { showToast('操作失败', 'error'); }
+          } catch(e) { showToast('Operation failed', 'error'); }
           break;
         case 'forward':
           const m = currentData.find(x => x.address === address);
@@ -184,9 +184,9 @@ function bindCardEvents() {
           if (mailbox) {
             try {
               await apiToggleLogin(address, !mailbox.can_login);
-              showToast(mailbox.can_login ? '已禁止登录' : '已允许登录', 'success');
+              showToast(mailbox.can_login ? 'Login disabled' : 'Login enabled', 'success');
               load();
-            } catch(e) { showToast('操作失败', 'error'); }
+            } catch(e) { showToast('Operation failed', 'error'); }
           }
           break;
         case 'password':
@@ -196,12 +196,12 @@ function bindCardEvents() {
           }
           break;
         case 'delete':
-          if (!confirm(`确定删除邮箱 ${address}？`)) return;
+          if (!confirm(`Delete mailbox ${address}?`)) return;
           try {
             await apiDeleteMailbox(address);
-            showToast('已删除', 'success');
+            showToast('Deleted', 'success');
             load();
-          } catch(e) { showToast('删除失败', 'error'); }
+          } catch(e) { showToast('Delete failed', 'error'); }
           break;
       }
     };
@@ -229,7 +229,7 @@ async function loadDomainsFilter() {
     if (Array.isArray(domains) && domains.length) {
       availableDomains = domains.sort();
       if (els.domainFilter) {
-        els.domainFilter.innerHTML = '<option value="">全部域名</option>' + domains.map(d => `<option value="${d}">@${d}</option>`).join('');
+        els.domainFilter.innerHTML = '<option value="">All Domains</option>' + domains.map(d => `<option value="${d}">@${d}</option>`).join('');
       }
     }
   } catch(_) {}
@@ -250,8 +250,8 @@ function openPasswordModal(address, isDefault) {
   if (isDefault) {
     // 设置新密码
     if (els.passwordModalIcon) els.passwordModalIcon.textContent = '🔐';
-    if (els.passwordModalTitle) els.passwordModalTitle.textContent = '设置密码';
-    if (els.passwordModalMessage) els.passwordModalMessage.innerHTML = `为 <strong>${address}</strong> 设置新密码：`;
+    if (els.passwordModalTitle) els.passwordModalTitle.textContent = 'Set Password';
+    if (els.passwordModalMessage) els.passwordModalMessage.innerHTML = `Set a new password for <strong>${address}</strong>:`;
     if (els.passwordInputWrapper) els.passwordInputWrapper.style.display = 'block';
     if (els.passwordNewInput) els.passwordNewInput.value = '';
     if (els.passwordShowToggle) els.passwordShowToggle.checked = false;
@@ -259,8 +259,8 @@ function openPasswordModal(address, isDefault) {
   } else {
     // 重置密码
     if (els.passwordModalIcon) els.passwordModalIcon.textContent = '🔓';
-    if (els.passwordModalTitle) els.passwordModalTitle.textContent = '重置密码';
-    if (els.passwordModalMessage) els.passwordModalMessage.innerHTML = `确定将 <strong>${address}</strong> 的密码重置为默认密码（邮箱地址）？`;
+    if (els.passwordModalTitle) els.passwordModalTitle.textContent = 'Reset Password';
+    if (els.passwordModalMessage) els.passwordModalMessage.innerHTML = `Reset password for <strong>${address}</strong> to default (mailbox address)?`;
     if (els.passwordInputWrapper) els.passwordInputWrapper.style.display = 'none';
   }
   
@@ -293,7 +293,7 @@ async function executePasswordAction() {
       // 设置新密码
       const newPwd = els.passwordNewInput?.value?.trim();
       if (!newPwd) {
-        showToast('请输入新密码', 'error');
+        showToast('Please enter new password', 'error');
         return;
       }
       res = await apiChangePassword(currentPasswordAddress, newPwd);
@@ -303,15 +303,15 @@ async function executePasswordAction() {
     }
     
     if (res.ok) {
-      showToast(currentPasswordIsDefault ? '密码已设置' : '密码已重置', 'success');
+      showToast(currentPasswordIsDefault ? 'Password set' : 'Password reset', 'success');
       closePasswordModal();
       load();
     } else {
       const err = await res.json().catch(() => ({}));
-      showToast(err.error || '操作失败', 'error');
+      showToast(err.error || 'Operation failed', 'error');
     }
   } catch (e) {
-    showToast('操作失败: ' + (e.message || '未知错误'), 'error');
+    showToast('Operation failed: ' + (e.message || 'Unknown error'), 'error');
   } finally {
     if (btnText) btnText.style.display = 'inline';
     if (btnLoading) btnLoading.style.display = 'none';
@@ -326,7 +326,7 @@ function openBatchModal(action, title, icon, message) {
   if (els.batchModalTitle) els.batchModalTitle.textContent = title;
   if (els.batchModalMessage) els.batchModalMessage.textContent = message;
   if (els.batchEmailsInput) els.batchEmailsInput.value = '';
-  if (els.batchCountInfo) els.batchCountInfo.textContent = '输入邮箱后将显示数量统计';
+  if (els.batchCountInfo) els.batchCountInfo.textContent = 'Count will appear after input';
   if (els.batchModalConfirm) els.batchModalConfirm.disabled = true;
   
   // 显示/隐藏转发目标输入
@@ -354,7 +354,7 @@ function parseEmails(text) {
 function updateBatchCount() {
   const emails = parseEmails(els.batchEmailsInput?.value || '');
   if (els.batchCountInfo) {
-    els.batchCountInfo.textContent = emails.length > 0 ? `已识别 ${emails.length} 个邮箱地址` : '输入邮箱后将显示数量统计';
+    els.batchCountInfo.textContent = emails.length > 0 ? `${emails.length} mailbox address(es) detected` : 'Count will appear after input';
   }
   if (els.batchModalConfirm) {
     const forwardValid = currentBatchAction !== 'forward' || (els.batchForwardTarget?.value?.includes('@'));
@@ -398,7 +398,7 @@ async function executeBatchAction() {
         break;
       case 'forward':
         const forwardTo = els.batchForwardTarget?.value?.trim();
-        if (!forwardTo) { showToast('请输入转发目标', 'error'); return; }
+        if (!forwardTo) { showToast('Please enter forwarding target', 'error'); return; }
         result = await api('/api/mailboxes/batch-forward-by-address', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -413,11 +413,11 @@ async function executeBatchAction() {
         });
         break;
     }
-    showToast('批量操作完成', 'success');
+    showToast('Batch operation completed', 'success');
     closeBatchModal();
     load();
   } catch (e) {
-    showToast('操作失败: ' + (e.message || '未知错误'), 'error');
+    showToast('Operation failed: ' + (e.message || 'Unknown error'), 'error');
   } finally {
     if (btnText) btnText.style.display = 'inline';
     if (btnLoading) btnLoading.style.display = 'none';
@@ -443,12 +443,12 @@ els.viewList?.addEventListener('click', () => switchView('list'));
 els.logout?.addEventListener('click', async () => { try { await fetch('/api/logout', { method: 'POST' }); } catch(_) {} location.replace('/html/login.html'); });
 
 // 批量操作按钮
-els.batchAllow?.addEventListener('click', () => openBatchModal('allow', '批量放行登录', '✅', '输入要允许登录的邮箱地址（每行一个或用逗号分隔）：'));
-els.batchDeny?.addEventListener('click', () => openBatchModal('deny', '批量禁止登录', '🚫', '输入要禁止登录的邮箱地址（每行一个或用逗号分隔）：'));
-els.batchFavorite?.addEventListener('click', () => openBatchModal('favorite', '批量收藏', '⭐', '输入要收藏的邮箱地址（每行一个或用逗号分隔）：'));
-els.batchUnfavorite?.addEventListener('click', () => openBatchModal('unfavorite', '批量取消收藏', '☆', '输入要取消收藏的邮箱地址（每行一个或用逗号分隔）：'));
-els.batchForward?.addEventListener('click', () => openBatchModal('forward', '批量设置转发', '↪️', '输入要设置转发的邮箱地址（每行一个或用逗号分隔）：'));
-els.batchClearForward?.addEventListener('click', () => openBatchModal('clear-forward', '批量清除转发', '🚫', '输入要清除转发的邮箱地址（每行一个或用逗号分隔）：'));
+els.batchAllow?.addEventListener('click', () => openBatchModal('allow', 'Batch Enable Login', '✅', 'Enter mailbox addresses to allow login (one per line or comma-separated):'));
+els.batchDeny?.addEventListener('click', () => openBatchModal('deny', 'Batch Disable Login', '🚫', 'Enter mailbox addresses to disable login (one per line or comma-separated):'));
+els.batchFavorite?.addEventListener('click', () => openBatchModal('favorite', 'Batch Favorite', '⭐', 'Enter mailbox addresses to favorite (one per line or comma-separated):'));
+els.batchUnfavorite?.addEventListener('click', () => openBatchModal('unfavorite', 'Batch Unfavorite', '☆', 'Enter mailbox addresses to unfavorite (one per line or comma-separated):'));
+els.batchForward?.addEventListener('click', () => openBatchModal('forward', 'Batch Set Forwarding', '↪️', 'Enter mailbox addresses for forwarding setup (one per line or comma-separated):'));
+els.batchClearForward?.addEventListener('click', () => openBatchModal('clear-forward', 'Batch Clear Forwarding', '🚫', 'Enter mailbox addresses to clear forwarding (one per line or comma-separated):'));
 
 // 批量操作模态框事件
 els.batchModalClose?.addEventListener('click', closeBatchModal);

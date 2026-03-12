@@ -175,6 +175,12 @@ body::after {
   font-size: 22px !important;
 }
 
+.brand-icon-img {
+  width: 22px !important;
+  height: 22px !important;
+  object-fit: contain;
+}
+
 .brand:hover {
   transform: none !important;
 }

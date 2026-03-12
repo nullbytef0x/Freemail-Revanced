@@ -12,8 +12,8 @@ export function createModal(options = {}) {
   const {
     title = '',
     content = '',
-    confirmText = '确定',
-    cancelText = '取消',
+    confirmText = 'Confirm',
+    cancelText = 'Cancel',
     showCancel = true,
     onConfirm = null,
     onCancel = null,
@@ -138,10 +138,10 @@ export function createModal(options = {}) {
 export function confirm(message, options = {}) {
   return new Promise((resolve) => {
     createModal({
-      title: options.title || '确认',
+      title: options.title || 'Confirm',
       content: `<p style="margin: 0; color: #666;">${message}</p>`,
-      confirmText: options.confirmText || '确定',
-      cancelText: options.cancelText || '取消',
+      confirmText: options.confirmText || 'Confirm',
+      cancelText: options.cancelText || 'Cancel',
       showCancel: true,
       onConfirm: () => {
         resolve(true);
@@ -164,9 +164,9 @@ export function confirm(message, options = {}) {
 export function alert(message, options = {}) {
   return new Promise((resolve) => {
     createModal({
-      title: options.title || '提示',
+      title: options.title || 'Notice',
       content: `<p style="margin: 0; color: #666;">${message}</p>`,
-      confirmText: options.confirmText || '知道了',
+      confirmText: options.confirmText || 'OK',
       showCancel: false,
       onConfirm: () => {
         resolve();
@@ -195,10 +195,10 @@ export function prompt(message, options = {}) {
     `;
     
     const modal = createModal({
-      title: options.title || '输入',
+      title: options.title || 'Input',
       content,
-      confirmText: options.confirmText || '确定',
-      cancelText: options.cancelText || '取消',
+      confirmText: options.confirmText || 'Confirm',
+      cancelText: options.cancelText || 'Cancel',
       showCancel: true,
       onConfirm: () => {
         const input = document.getElementById(inputId);

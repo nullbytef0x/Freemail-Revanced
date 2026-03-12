@@ -38,7 +38,7 @@ export function formatTime(ts) {
 export function renderUserRow(user) {
   const id = user.id;
   const username = escapeHtml(user.username || '');
-  const role = user.role === 'admin' ? '管理员' : '普通用户';
+  const role = user.role === 'admin' ? 'Admin' : 'User';
   const roleClass = user.role === 'admin' ? 'role-admin' : 'role-user';
   const mailboxLimit = user.mailbox_limit || 0;
   const mailboxCount = user.mailbox_count || 0;
@@ -56,7 +56,7 @@ export function renderUserRow(user) {
       <td class="col-created">${createdAt}</td>
       <td class="col-actions">
         <div class="user-actions">
-          <button class="btn btn-sm btn-edit" data-action="edit" data-user-id="${id}" title="编辑">✏️</button>
+          <button class="btn btn-sm btn-edit" data-action="edit" data-user-id="${id}" title="Edit">✏️</button>
         </div>
       </td>
     </tr>
@@ -72,7 +72,7 @@ export function renderUserList(users, tbody) {
   if (!tbody) return;
   
   if (!users || users.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">暂无用户</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No users</td></tr>';
     return;
   }
   
@@ -108,14 +108,14 @@ export function generateSkeletonRows(count = 5) {
  */
 export function renderPagination(currentPage, totalPages, total) {
   if (totalPages <= 1) {
-    return `<span class="page-info">共 ${total} 条</span>`;
+    return `<span class="page-info">Total ${total}</span>`;
   }
   
   return `
-    <span class="page-info">第 ${currentPage} / ${totalPages} 页，共 ${total} 条</span>
+    <span class="page-info">${currentPage} / ${totalPages}, total ${total}</span>
     <div class="page-buttons">
-      <button class="btn btn-sm" data-action="prev-page" ${currentPage <= 1 ? 'disabled' : ''}>上一页</button>
-      <button class="btn btn-sm" data-action="next-page" ${currentPage >= totalPages ? 'disabled' : ''}>下一页</button>
+      <button class="btn btn-sm" data-action="prev-page" ${currentPage <= 1 ? 'disabled' : ''}>Previous</button>
+      <button class="btn btn-sm" data-action="next-page" ${currentPage >= totalPages ? 'disabled' : ''}>Next</button>
     </div>
   `;
 }

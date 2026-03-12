@@ -50,8 +50,8 @@ export function truncateText(text, maxLength = 100) {
  */
 export function renderEmailItem(email) {
   const id = email.id;
-  const sender = escapeHtml(email.sender || '未知发件人');
-  const subject = escapeHtml(email.subject || '(无主题)');
+  const sender = escapeHtml(email.sender || 'Unknown sender');
+  const subject = escapeHtml(email.subject || '(No subject)');
   const preview = escapeHtml(truncateText(email.preview || email.content || '', 80));
   const receivedAt = formatTime(email.received_at);
   const isRead = email.is_read ? 'read' : 'unread';
@@ -65,7 +65,7 @@ export function renderEmailItem(email) {
       </div>
       <div class="email-subject">${subject}</div>
       <div class="email-preview">${preview}</div>
-      ${verificationCode ? `<div class="email-code" title="点击复制验证码">🔑 ${escapeHtml(verificationCode)}</div>` : ''}
+      ${verificationCode ? `<div class="email-code" title="Click to copy code">🔑 ${escapeHtml(verificationCode)}</div>` : ''}
     </div>
   `;
 }

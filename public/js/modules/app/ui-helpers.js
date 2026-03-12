@@ -165,16 +165,16 @@ export function applySessionUI(session, elements = {}) {
       badge.className = 'role-badge';
       if (session.strictAdmin) {
         badge.classList.add('role-super');
-        badge.textContent = '超级管理员';
+        badge.textContent = 'Super Admin';
       } else if (session.role === 'admin') {
         badge.classList.add('role-admin');
-        badge.textContent = `高级用户：${session.username || ''}`;
+        badge.textContent = `Admin: ${session.username || ''}`;
       } else if (session.role === 'user') {
         badge.classList.add('role-user');
-        badge.textContent = `用户：${session.username || ''}`;
+        badge.textContent = `User: ${session.username || ''}`;
       } else if (session.role === 'guest') {
         badge.classList.add('role-user');
-        badge.textContent = '演示模式';
+        badge.textContent = 'Demo Mode';
       }
     }
     

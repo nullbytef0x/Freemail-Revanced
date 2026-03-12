@@ -26,7 +26,7 @@ export async function generateMailbox(elements, lenRange, domainSelect, api, sho
   const { gen, email, emailActions, listCard } = elements;
   
   try {
-    setButtonLoading(gen, '生成中…');
+    setButtonLoading(gen, 'Generating...');
     const len = Number(lenRange?.value || getStoredLength());
     const domainIndex = getSelectedDomainIndex(domainSelect);
     
@@ -49,14 +49,14 @@ export async function generateMailbox(elements, lenRange, domainSelect, api, sho
       }
     } catch(_) {}
     
-    showToast('邮箱生成成功！', 'success');
+    showToast('Mailbox generated successfully!', 'success');
     startAutoRefresh(autoRefreshCallback);
     await refresh();
     
     resetMbPage();
     await loadMailboxes({ forceFresh: true });
   } catch(e) {
-    showToast(e.message || '生成失败', 'error');
+    showToast(e.message || 'Generation failed', 'error');
   } finally {
     restoreButton(gen);
   }
@@ -77,7 +77,7 @@ export async function generateNameMailbox(elements, lenRange, domainSelect, api,
   const { genName } = elements;
   
   try {
-    setButtonLoading(genName, '生成中…');
+    setButtonLoading(genName, 'Generating...');
     const len = Number(lenRange?.value || getStoredLength());
     const domainIndex = getSelectedDomainIndex(domainSelect);
     const localName = generateRandomId(len);
@@ -105,14 +105,14 @@ export async function generateNameMailbox(elements, lenRange, domainSelect, api,
       }
     } catch(_) {}
     
-    showToast('随机人名邮箱生成成功！', 'success');
+    showToast('Mailbox generated with random name!', 'success');
     startAutoRefresh(autoRefreshCallback);
     await refresh();
     
     resetMbPage();
     await loadMailboxes({ forceFresh: true });
   } catch(e) {
-    showToast(e.message || '生成失败', 'error');
+    showToast(e.message || 'Generation failed', 'error');
   } finally {
     restoreButton(genName);
   }
@@ -132,7 +132,7 @@ export async function createCustomMailbox(elements, domainSelect, api, showToast
   try {
     const local = (customLocalOverlay?.value || '').trim();
     if (!/^[A-Za-z0-9._-]{1,64}$/.test(local)) {
-      showToast('用户名不合法，仅限字母/数字/._-', 'warn');
+      showToast('Invalid username. Use letters/numbers/._- only', 'warn');
       return;
     }
     const domainIndex = getSelectedDomainIndex(domainSelect);
@@ -150,10 +150,10 @@ export async function createCustomMailbox(elements, domainSelect, api, showToast
     updateEmailDisplay(elements, data.email);
     if (customOverlay) customOverlay.style.display = 'none';
     
-    showToast('已创建邮箱：' + data.email, 'success');
+    showToast('Mailbox created: ' + data.email, 'success');
     await loadMailboxes({ forceFresh: true });
   } catch(e) {
-    showToast(e.message || '创建失败', 'error');
+    showToast(e.message || 'Creation failed', 'error');
   }
 }
 
@@ -220,11 +220,11 @@ export async function toggleMailboxPin(event, address, api, showToast, loadMailb
   try {
     const r = await api(`/api/mailboxes/pin?address=${encodeURIComponent(address)}`, { method: 'POST' });
     if (r.ok) {
-      showToast('操作成功', 'success');
+      showToast('Done', 'success');
       await loadMailboxes({ forceFresh: true });
     }
   } catch(e) {
-    showToast(e.message || '操作失败', 'error');
+    showToast(e.message || 'Operation failed', 'error');
   }
 }
 
@@ -240,16 +240,16 @@ export async function toggleMailboxPin(event, address, api, showToast, loadMailb
  */
 export async function deleteMailboxAddress(event, address, elements, api, showToast, showConfirm, loadMailboxes) {
   event.stopPropagation();
-  const confirmed = await showConfirm(`确定删除邮箱 ${address}？所有邮件将被清空。`);
+  const confirmed = await showConfirm(`Delete mailbox ${address}? All emails will be removed.`);
   if (!confirmed) return;
   
   try {
     const r = await api(`/api/mailboxes?address=${encodeURIComponent(address)}`, { method: 'DELETE' });
     if (r.ok) {
-      showToast('邮箱已删除', 'success');
+      showToast('Mailbox deleted', 'success');
       if (getCurrentMailbox() === address) {
         clearCurrentMailbox();
-        if (elements.email) elements.email.textContent = '点击生成邮箱';
+        if (elements.email) elements.email.textContent = 'Click Generate to create a mailbox';
         elements.email?.classList.remove('has-email');
         if (elements.emailActions) elements.emailActions.style.display = 'none';
         if (elements.list) elements.list.innerHTML = '';
@@ -258,7 +258,7 @@ export async function deleteMailboxAddress(event, address, elements, api, showTo
       await loadMailboxes({ forceFresh: true });
     }
   } catch(e) {
-    showToast(e.message || '删除失败', 'error');
+    showToast(e.message || 'Delete failed', 'error');
   }
 }
 
@@ -269,14 +269,14 @@ export async function deleteMailboxAddress(event, address, elements, api, showTo
 export async function copyMailboxAddress(showToast) {
   const mailbox = getCurrentMailbox();
   if (!mailbox) {
-    showToast('请先生成或选择一个邮箱', 'warn');
+    showToast('Please generate or select a mailbox first', 'warn');
     return;
   }
   try {
     await navigator.clipboard.writeText(mailbox);
-    showToast(`已复制：${mailbox}`, 'success');
+    showToast(`Copied: ${mailbox}`, 'success');
   } catch(_) {
-    showToast('复制失败', 'error');
+    showToast('Copy failed', 'error');
   }
 }
 
@@ -290,20 +290,20 @@ export async function copyMailboxAddress(showToast) {
 export async function clearAllEmails(api, showToast, showConfirm, refresh) {
   const mailbox = getCurrentMailbox();
   if (!mailbox) {
-    showToast('请先选择一个邮箱', 'warn');
+    showToast('Please select a mailbox first', 'warn');
     return;
   }
-  const confirmed = await showConfirm(`确定清空 ${mailbox} 的所有邮件？`);
+  const confirmed = await showConfirm(`Clear all emails for ${mailbox}?`);
   if (!confirmed) return;
   
   try {
     const r = await api(`/api/emails?mailbox=${encodeURIComponent(mailbox)}`, { method: 'DELETE' });
     if (r.ok) {
-      showToast('邮件已清空', 'success');
+      showToast('Emails cleared', 'success');
       await refresh();
     }
   } catch(e) {
-    showToast(e.message || '清空失败', 'error');
+    showToast(e.message || 'Clear failed', 'error');
   }
 }
 
