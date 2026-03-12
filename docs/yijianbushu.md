@@ -1,6 +1,6 @@
 ## One-Click Deployment Guide
 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/idinging/freemail)
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/nullbytef0x/Freemail-Revanced)
 
 #### 1. Click Deploy to Cloudflare
 

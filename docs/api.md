@@ -1,90 +1,90 @@
-# API 接口文档
+# API Documentation
 
-## 目录
+## Contents
 
-- [认证与权限](#认证与权限)
-- [认证相关](#认证相关)
-- [邮箱管理](#邮箱管理)
-- [邮箱设置](#邮箱设置)
-- [邮件操作](#邮件操作)
-- [邮件发送](#邮件发送)
-- [用户管理](#用户管理)
-- [系统接口](#系统接口)
+- [Authentication and Authorization](#authentication-and-authorization)
+- [Authentication Endpoints](#authentication-endpoints)
+- [Mailbox Management](#mailbox-management)
+- [Mailbox Settings](#mailbox-settings)
+- [Email Operations](#email-operations)
+- [Email Sending](#email-sending)
+- [User Management](#user-management)
+- [System Endpoints](#system-endpoints)
 
 ---
 
-## 认证与权限
+## Authentication and Authorization
 
-### 🔐 根管理员令牌（Root Admin Override）
+### 🔐 Root Admin Token (Root Admin Override)
 
-当请求方携带与服务端环境变量 `JWT_TOKEN` 完全一致的令牌时，将跳过会话 Cookie/JWT 校验，直接被识别为最高管理员（strictAdmin）。
+If the request includes a token exactly matching the server-side `JWT_TOKEN` environment variable, session Cookie/JWT validation is bypassed and the requester is treated as top-level admin (`strictAdmin`).
 
-**配置项：**
-- `wrangler.toml` → `[vars]` → `JWT_TOKEN="你的超管令牌"`
+**Configuration:**
+- `wrangler.toml` → `[vars]` → `JWT_TOKEN="your-root-admin-token"`
 
-**令牌携带方式（任选其一）：**
-- Header（标准）：`Authorization: Bearer <JWT_TOKEN>`
-- Header（自定义）：`X-Admin-Token: <JWT_TOKEN>`
-- Query：`?admin_token=<JWT_TOKEN>`
+**How to pass the token (choose one):**
+- Header (standard): `Authorization: Bearer <JWT_TOKEN>`
+- Header (custom): `X-Admin-Token: <JWT_TOKEN>`
+- Query: `?admin_token=<JWT_TOKEN>`
 
-**生效范围：**
-- 所有受保护的后端接口：`/api/*`
-- 会话检查：`GET /api/session`
-- 收信回调：`POST /receive`
-- 管理页服务端访问判定（`/admin`/`/admin.html`）与未知路径的认证判断
+**Scope:**
+- All protected backend endpoints: `/api/*`
+- Session check: `GET /api/session`
+- Receive callback: `POST /receive`
+- Server-side access checks for admin pages (`/admin` / `/admin.html`) and unknown paths
 
-**行为说明：**
-- 命中令牌后，鉴权载荷为：`{ role: 'admin', username: '__root__', userId: 0 }`
-- `strictAdmin` 判定对 `__root__` 为 true（与严格管理员等价）
-- 若未携带或不匹配，则回退到原有 Cookie/JWT 会话验证
+**Behavior:**
+- If matched, auth payload is: `{ role: 'admin', username: '__root__', userId: 0 }`
+- `strictAdmin` resolves to true for `__root__` (equivalent to strict admin)
+- If missing or mismatched, the system falls back to normal Cookie/JWT validation
 
-**使用示例：**
+**Examples:**
 
 ```bash
-# Authorization 头
+# Authorization header
 curl -H "Authorization: Bearer <JWT_TOKEN>" https://your.domain/api/mailboxes
 
-# X-Admin-Token 头
+# X-Admin-Token header
 curl -H "X-Admin-Token: <JWT_TOKEN>" https://your.domain/api/domains
 
-# Query 参数
+# Query parameter
 curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 ```
 
-**安全提示：** 严格保密 `JWT_TOKEN`，并定期更换。
+**Security note:** keep `JWT_TOKEN` secret and rotate it regularly.
 
-### 用户角色
+### User Roles
 
-| 角色 | 说明 |
+| Role | Description |
 |------|------|
-| `strictAdmin` | 最高管理员，完全系统访问权限 |
-| `admin` | 管理员，用户管理和邮箱控制 |
-| `user` | 普通用户，只能管理分配的邮箱 |
-| `mailbox` | 邮箱用户，只能访问自己的单个邮箱 |
-| `guest` | 访客，只读模拟数据 |
+| `strictAdmin` | Top-level administrator with full system access |
+| `admin` | Administrator with user and mailbox management capabilities |
+| `user` | Regular user, can only manage assigned mailboxes |
+| `mailbox` | Mailbox user, can only access their own mailbox |
+| `guest` | Guest mode, read-only mock data |
 
 ---
 
-## 认证相关
+## Authentication Endpoints
 
 ### POST /api/login
-用户登录
+User login.
 
-**请求参数：**
+**Request body:**
 ```json
 {
-  "username": "用户名或邮箱地址",
-  "password": "密码"
+  "username": "username or mailbox address",
+  "password": "password"
 }
 ```
 
-**支持的登录方式：**
-1. 管理员登录：使用 `ADMIN_NAME` / `ADMIN_PASSWORD` 环境变量
-2. 访客登录：用户名 `guest`，密码为 `GUEST_PASSWORD` 环境变量
-3. 普通用户登录：数据库 `users` 表中的用户
-4. 邮箱登录：使用邮箱地址登录（需启用 `can_login`）
+**Supported login modes:**
+1. Admin login: uses `ADMIN_NAME` / `ADMIN_PASSWORD`
+2. Guest login: username `guest`, password from `GUEST_PASSWORD`
+3. Regular user login: users from the `users` table
+4. Mailbox login: mailbox address login (`can_login` must be enabled)
 
-**返回示例：**
+**Response example:**
 ```json
 {
   "success": true,
@@ -95,17 +95,17 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 ```
 
 ### POST /api/logout
-用户退出登录
+User logout.
 
-**返回：**
+**Response:**
 ```json
 { "success": true }
 ```
 
 ### GET /api/session
-验证当前会话状态
+Check current session status.
 
-**返回：**
+**Response:**
 ```json
 {
   "authenticated": true,
@@ -117,26 +117,26 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 
 ---
 
-## 邮箱管理
+## Mailbox Management
 
 ### GET /api/domains
-获取可用域名列表
+Get available mail domains.
 
-**返回：**
+**Response:**
 ```json
 ["example.com", "mail.example.com"]
 ```
 
 ### GET /api/generate
-随机生成新的临时邮箱
+Generate a random temporary mailbox.
 
-**参数：**
-| 参数 | 类型 | 说明 |
+**Query params:**
+| Param | Type | Description |
 |------|------|------|
-| `length` | number | 可选，随机字符串长度 |
-| `domainIndex` | number | 可选，选择域名索引（默认 0） |
+| `length` | number | Optional random local-part length |
+| `domainIndex` | number | Optional domain index (default: 0) |
 
-**返回：**
+**Response:**
 ```json
 {
   "email": "abc123@example.com",
@@ -145,9 +145,9 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 ```
 
 ### POST /api/create
-自定义创建邮箱
+Create a custom mailbox.
 
-**请求参数：**
+**Request body:**
 ```json
 {
   "local": "myname",
@@ -155,7 +155,7 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 }
 ```
 
-**返回：**
+**Response:**
 ```json
 {
   "email": "myname@example.com",
@@ -164,18 +164,18 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 ```
 
 ### GET /api/mailboxes
-获取当前用户的邮箱列表
+Get mailbox list for the current user.
 
-**参数：**
-| 参数 | 类型 | 说明 |
+**Query params:**
+| Param | Type | Description |
 |------|------|------|
-| `limit` | number | 分页大小（默认 100，最大 500） |
-| `offset` | number | 偏移量 |
-| `domain` | string | 按域名筛选 |
-| `favorite` | boolean | 按收藏状态筛选 |
-| `forward` | boolean | 按转发状态筛选 |
+| `limit` | number | Page size (default: 100, max: 500) |
+| `offset` | number | Offset |
+| `domain` | string | Filter by domain |
+| `favorite` | boolean | Filter by favorite status |
+| `forward` | boolean | Filter by forwarding status |
 
-**返回：**
+**Response:**
 ```json
 [
   {
@@ -192,22 +192,22 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 ```
 
 ### DELETE /api/mailboxes
-删除指定邮箱
+Delete a mailbox.
 
-**参数：**
-| 参数 | 类型 | 说明 |
+**Query params:**
+| Param | Type | Description |
 |------|------|------|
-| `address` | string | 要删除的邮箱地址 |
+| `address` | string | Mailbox address to delete |
 
-**返回：**
+**Response:**
 ```json
 { "success": true, "deleted": true }
 ```
 
 ### GET /api/user/quota
-获取当前用户的邮箱配额
+Get mailbox quota for current user.
 
-**返回（普通用户）：**
+**Response (regular user):**
 ```json
 {
   "limit": 10,
@@ -216,46 +216,46 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 }
 ```
 
-**返回（管理员）：**
+**Response (admin):**
 ```json
 {
   "limit": -1,
   "used": 150,
   "remaining": -1,
-  "note": "管理员无邮箱数量限制"
+  "note": "Admin has no mailbox count limit"
 }
 ```
 
 ### POST /api/mailboxes/pin
-切换邮箱置顶状态
+Toggle mailbox pinned status.
 
-**参数：**
-| 参数 | 类型 | 说明 |
+**Query params:**
+| Param | Type | Description |
 |------|------|------|
-| `address` | string | 邮箱地址 |
+| `address` | string | Mailbox address |
 
-**返回：**
+**Response:**
 ```json
 { "success": true, "pinned": true }
 ```
 
 ### POST /api/mailboxes/reset-password
-重置邮箱密码（仅 strictAdmin）
+Reset mailbox password (strictAdmin only).
 
-**参数：**
-| 参数 | 类型 | 说明 |
+**Query params:**
+| Param | Type | Description |
 |------|------|------|
-| `address` | string | 邮箱地址 |
+| `address` | string | Mailbox address |
 
-**返回：**
+**Response:**
 ```json
 { "success": true }
 ```
 
 ### POST /api/mailboxes/toggle-login
-切换邮箱登录权限（仅 strictAdmin）
+Enable/disable mailbox login (strictAdmin only).
 
-**请求参数：**
+**Request body:**
 ```json
 {
   "address": "test@example.com",
@@ -263,15 +263,15 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 }
 ```
 
-**返回：**
+**Response:**
 ```json
 { "success": true, "can_login": true }
 ```
 
 ### POST /api/mailboxes/change-password
-修改邮箱密码（仅 strictAdmin）
+Change mailbox password (strictAdmin only).
 
-**请求参数：**
+**Request body:**
 ```json
 {
   "address": "test@example.com",
@@ -279,15 +279,15 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 }
 ```
 
-**返回：**
+**Response:**
 ```json
 { "success": true }
 ```
 
 ### POST /api/mailboxes/batch-toggle-login
-批量切换邮箱登录权限（仅 strictAdmin）
+Batch enable/disable mailbox login (strictAdmin only).
 
-**请求参数：**
+**Request body:**
 ```json
 {
   "addresses": ["test1@example.com", "test2@example.com"],
@@ -295,7 +295,7 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 }
 ```
 
-**返回：**
+**Response:**
 ```json
 {
   "success": true,
@@ -310,12 +310,12 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 
 ---
 
-## 邮箱设置
+## Mailbox Settings
 
 ### POST /api/mailbox/forward
-设置邮箱转发地址
+Set mailbox forwarding target.
 
-**请求参数：**
+**Request body:**
 ```json
 {
   "mailbox_id": 1,
@@ -323,15 +323,15 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 }
 ```
 
-**返回：**
+**Response:**
 ```json
 { "success": true }
 ```
 
 ### POST /api/mailbox/favorite
-切换邮箱收藏状态
+Toggle mailbox favorite status.
 
-**请求参数：**
+**Request body:**
 ```json
 {
   "mailbox_id": 1,
@@ -339,15 +339,15 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 }
 ```
 
-**返回：**
+**Response:**
 ```json
 { "success": true }
 ```
 
 ### POST /api/mailboxes/batch-favorite
-批量设置收藏（按 ID，仅 strictAdmin）
+Batch set favorite status by mailbox ID (strictAdmin only).
 
-**请求参数：**
+**Request body:**
 ```json
 {
   "mailbox_ids": [1, 2, 3],
@@ -356,9 +356,9 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 ```
 
 ### POST /api/mailboxes/batch-forward
-批量设置转发（按 ID，仅 strictAdmin）
+Batch set forwarding by mailbox ID (strictAdmin only).
 
-**请求参数：**
+**Request body:**
 ```json
 {
   "mailbox_ids": [1, 2, 3],
@@ -367,9 +367,9 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 ```
 
 ### POST /api/mailboxes/batch-favorite-by-address
-批量设置收藏（按地址，仅 strictAdmin）
+Batch set favorite status by mailbox address (strictAdmin only).
 
-**请求参数：**
+**Request body:**
 ```json
 {
   "addresses": ["test1@example.com", "test2@example.com"],
@@ -378,9 +378,9 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 ```
 
 ### POST /api/mailboxes/batch-forward-by-address
-批量设置转发（按地址，仅 strictAdmin）
+Batch set forwarding by mailbox address (strictAdmin only).
 
-**请求参数：**
+**Request body:**
 ```json
 {
   "addresses": ["test1@example.com", "test2@example.com"],
@@ -389,9 +389,9 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 ```
 
 ### PUT /api/mailbox/password
-邮箱用户修改自己的密码
+Mailbox user changes own password.
 
-**请求参数：**
+**Request body:**
 ```json
 {
   "currentPassword": "oldpassword",
@@ -399,57 +399,57 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 }
 ```
 
-**返回：**
+**Response:**
 ```json
-{ "success": true, "message": "密码修改成功" }
+{ "success": true, "message": "Password updated successfully" }
 ```
 
 ---
 
-## 邮件操作
+## Email Operations
 
 ### GET /api/emails
-获取邮件列表
+Get email list.
 
-**参数：**
-| 参数 | 类型 | 说明 |
+**Query params:**
+| Param | Type | Description |
 |------|------|------|
-| `mailbox` | string | 邮箱地址（必需） |
-| `limit` | number | 返回数量（默认 20，最大 50） |
+| `mailbox` | string | Mailbox address (required) |
+| `limit` | number | Max items (default: 20, max: 50) |
 
-**返回：**
+**Response:**
 ```json
 [
   {
     "id": 1,
     "sender": "sender@example.com",
-    "subject": "邮件主题",
+    "subject": "Mail subject",
     "received_at": "2024-01-01 12:00:00",
     "is_read": 0,
-    "preview": "邮件内容预览...",
+    "preview": "Mail preview...",
     "verification_code": "123456"
   }
 ]
 ```
 
 ### GET /api/emails/batch
-批量获取邮件元数据
+Get batch email metadata.
 
-**参数：**
-| 参数 | 类型 | 说明 |
+**Query params:**
+| Param | Type | Description |
 |------|------|------|
-| `ids` | string | 逗号分隔的邮件 ID（最多 50 个） |
+| `ids` | string | Comma-separated email IDs (max 50) |
 
-**返回：**
+**Response:**
 ```json
 [
   {
     "id": 1,
     "sender": "sender@example.com",
     "to_addrs": "recipient@example.com",
-    "subject": "邮件主题",
+    "subject": "Mail subject",
     "verification_code": "123456",
-    "preview": "预览...",
+    "preview": "Preview...",
     "r2_bucket": "mail-eml",
     "r2_object_key": "2024/01/01/test@example.com/xxx.eml",
     "received_at": "2024-01-01 12:00:00",
@@ -459,18 +459,18 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 ```
 
 ### GET /api/email/:id
-获取单封邮件详情
+Get single email details.
 
-**返回：**
+**Response:**
 ```json
 {
   "id": 1,
   "sender": "sender@example.com",
   "to_addrs": "recipient@example.com",
-  "subject": "邮件主题",
+  "subject": "Mail subject",
   "verification_code": "123456",
-  "content": "纯文本内容",
-  "html_content": "<p>HTML内容</p>",
+  "content": "Plain text content",
+  "html_content": "<p>HTML content</p>",
   "received_at": "2024-01-01 12:00:00",
   "is_read": 1,
   "download": "/api/email/1/download"
@@ -478,31 +478,31 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 ```
 
 ### GET /api/email/:id/download
-下载原始 EML 文件
+Download original EML file.
 
-**返回：** `message/rfc822` 格式的原始邮件文件
+**Response:** raw mail file in `message/rfc822` format.
 
 ### DELETE /api/email/:id
-删除单封邮件
+Delete a single email.
 
-**返回：**
+**Response:**
 ```json
 {
   "success": true,
   "deleted": true,
-  "message": "邮件已删除"
+  "message": "Email deleted"
 }
 ```
 
 ### DELETE /api/emails
-清空邮箱所有邮件
+Delete all emails in a mailbox.
 
-**参数：**
-| 参数 | 类型 | 说明 |
+**Query params:**
+| Param | Type | Description |
 |------|------|------|
-| `mailbox` | string | 邮箱地址（必需） |
+| `mailbox` | string | Mailbox address (required) |
 
-**返回：**
+**Response:**
 ```json
 {
   "success": true,
@@ -512,27 +512,27 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 
 ---
 
-## 邮件发送
+## Email Sending
 
-> 需要配置 `RESEND_API_KEY` 环境变量
+> Requires `RESEND_API_KEY` environment variable.
 
 ### GET /api/sent
-获取发件记录列表
+Get sent-mail history list.
 
-**参数：**
-| 参数 | 类型 | 说明 |
+**Query params:**
+| Param | Type | Description |
 |------|------|------|
-| `from` | string | 发件人邮箱（必需） |
-| `limit` | number | 返回数量（默认 20，最大 50） |
+| `from` | string | Sender mailbox (required) |
+| `limit` | number | Max items (default: 20, max: 50) |
 
-**返回：**
+**Response:**
 ```json
 [
   {
     "id": 1,
     "resend_id": "abc123",
     "recipients": "to@example.com",
-    "subject": "邮件主题",
+    "subject": "Mail subject",
     "created_at": "2024-01-01 12:00:00",
     "status": "delivered"
   }
@@ -540,18 +540,18 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 ```
 
 ### GET /api/sent/:id
-获取发件详情
+Get sent-mail details.
 
-**返回：**
+**Response:**
 ```json
 {
   "id": 1,
   "resend_id": "abc123",
   "from_addr": "from@example.com",
   "recipients": "to@example.com",
-  "subject": "邮件主题",
-  "html_content": "<p>内容</p>",
-  "text_content": "内容",
+  "subject": "Mail subject",
+  "html_content": "<p>Content</p>",
+  "text_content": "Content",
   "status": "delivered",
   "scheduled_at": null,
   "created_at": "2024-01-01 12:00:00"
@@ -559,56 +559,56 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 ```
 
 ### DELETE /api/sent/:id
-删除发件记录
+Delete a sent-mail record.
 
-**返回：**
+**Response:**
 ```json
 { "success": true }
 ```
 
 ### POST /api/send
-发送单封邮件
+Send one email.
 
-**请求参数：**
+**Request body:**
 ```json
 {
   "from": "sender@example.com",
-  "fromName": "发件人名称",
+  "fromName": "Sender Name",
   "to": "recipient@example.com",
-  "subject": "邮件主题",
-  "html": "<p>HTML内容</p>",
-  "text": "纯文本内容",
+  "subject": "Mail subject",
+  "html": "<p>HTML content</p>",
+  "text": "Plain text content",
   "scheduledAt": "2024-01-02T12:00:00Z"
 }
 ```
 
-**返回：**
+**Response:**
 ```json
 { "success": true, "id": "resend-id-xxx" }
 ```
 
 ### POST /api/send/batch
-批量发送邮件
+Send batch emails.
 
-**请求参数：**
+**Request body:**
 ```json
 [
   {
     "from": "sender@example.com",
     "to": "recipient1@example.com",
-    "subject": "主题1",
-    "html": "<p>内容1</p>"
+    "subject": "Subject 1",
+    "html": "<p>Content 1</p>"
   },
   {
     "from": "sender@example.com",
     "to": "recipient2@example.com",
-    "subject": "主题2",
-    "html": "<p>内容2</p>"
+    "subject": "Subject 2",
+    "html": "<p>Content 2</p>"
   }
 ]
 ```
 
-**返回：**
+**Response:**
 ```json
 {
   "success": true,
@@ -620,12 +620,12 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 ```
 
 ### GET /api/send/:id
-查询发送结果（从 Resend API）
+Get send result (from Resend API).
 
 ### PATCH /api/send/:id
-更新发送状态或定时时间
+Update send status or scheduled time.
 
-**请求参数：**
+**Request body:**
 ```json
 {
   "status": "canceled",
@@ -634,30 +634,30 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 ```
 
 ### POST /api/send/:id/cancel
-取消定时发送
+Cancel scheduled email.
 
-**返回：**
+**Response:**
 ```json
 { "success": true }
 ```
 
 ---
 
-## 用户管理
+## User Management
 
-> 以下接口需要 `strictAdmin` 权限
+> Endpoints below require `strictAdmin` permission.
 
 ### GET /api/users
-获取用户列表
+Get user list.
 
-**参数：**
-| 参数 | 类型 | 说明 |
+**Query params:**
+| Param | Type | Description |
 |------|------|------|
-| `limit` | number | 分页大小（默认 50，最大 100） |
-| `offset` | number | 偏移量 |
-| `sort` | string | 排序方式：`asc` 或 `desc`（默认 desc） |
+| `limit` | number | Page size (default: 50, max: 100) |
+| `offset` | number | Offset |
+| `sort` | string | `asc` or `desc` (default: `desc`) |
 
-**返回：**
+**Response:**
 ```json
 [
   {
@@ -673,9 +673,9 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 ```
 
 ### POST /api/users
-创建用户
+Create a user.
 
-**请求参数：**
+**Request body:**
 ```json
 {
   "username": "newuser",
@@ -685,7 +685,7 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 }
 ```
 
-**返回：**
+**Response:**
 ```json
 {
   "id": 2,
@@ -698,9 +698,9 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 ```
 
 ### PATCH /api/users/:id
-更新用户信息
+Update user info.
 
-**请求参数：**
+**Request body:**
 ```json
 {
   "username": "updatedname",
@@ -711,23 +711,23 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 }
 ```
 
-**返回：**
+**Response:**
 ```json
 { "success": true }
 ```
 
 ### DELETE /api/users/:id
-删除用户
+Delete user.
 
-**返回：**
+**Response:**
 ```json
 { "success": true }
 ```
 
 ### GET /api/users/:id/mailboxes
-获取指定用户的邮箱列表
+Get mailbox list for a specific user.
 
-**返回：**
+**Response:**
 ```json
 [
   {
@@ -739,9 +739,9 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 ```
 
 ### POST /api/users/assign
-给用户分配邮箱
+Assign mailbox to a user.
 
-**请求参数：**
+**Request body:**
 ```json
 {
   "username": "testuser",
@@ -749,15 +749,15 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 }
 ```
 
-**返回：**
+**Response:**
 ```json
 { "success": true }
 ```
 
 ### POST /api/users/unassign
-取消用户的邮箱分配
+Unassign mailbox from a user.
 
-**请求参数：**
+**Request body:**
 ```json
 {
   "username": "testuser",
@@ -765,37 +765,37 @@ curl "https://your.domain/api/session?admin_token=<JWT_TOKEN>"
 }
 ```
 
-**返回：**
+**Response:**
 ```json
 { "success": true }
 ```
 
 ---
 
-## 系统接口
+## System Endpoints
 
 ### POST /receive
-邮件接收回调（用于 Cloudflare Email Routing）
+Email receiving callback (for Cloudflare Email Routing).
 
-> 需要认证，通常由系统内部调用
+> Requires authentication, typically called internally by the platform.
 
 ---
 
-## 错误响应
+## Error Response
 
-所有 API 在发生错误时返回以下格式：
+When an API fails, it returns this format:
 
 ```json
 {
-  "error": "错误信息描述"
+  "error": "error message"
 }
 ```
 
-**常见 HTTP 状态码：**
-| 状态码 | 说明 |
+**Common HTTP status codes:**
+| Code | Description |
 |--------|------|
-| 400 | 请求参数错误 |
-| 401 | 未认证 |
-| 403 | 权限不足（演示模式限制或角色限制） |
-| 404 | 资源不存在 |
-| 500 | 服务器内部错误 |
+| 400 | Bad request parameters |
+| 401 | Unauthorized |
+| 403 | Forbidden (demo mode restriction or role restriction) |
+| 404 | Resource not found |
+| 500 | Internal server error |

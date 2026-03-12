@@ -1,149 +1,145 @@
-# D1 数据库行读取分析
+# D1 Database Row-Read Analysis
 
-## 为什么会有 400 万行读取？
+## Why can there be 4 million row reads?
 
-即使用户不多，也可能产生大量行读取。以下是可能的原因：
+Even with a small user base, total row reads can still become high. Here are the common causes:
 
-### 1. **COUNT 查询扫描全表**
+### 1. **Full-table scans from COUNT queries**
 
 ```sql
--- 这个查询会扫描整个 mailboxes 表
+-- This scans the entire mailboxes table
 SELECT COUNT(1) AS count FROM mailboxes;
--- 如果有 10000 个邮箱，计费：10000 行读取
+-- With 10,000 mailboxes: billed as 10,000 row reads
 ```
 
-**项目中的 COUNT 查询**：
-- `getTotalMailboxCount()` - 每次超级管理员查看配额时触发
-- `getCachedUserQuota()` - 用户配额查询中的 COUNT
-- `listUsersWithCounts()` - 子查询中的 COUNT(1)
+**COUNT queries used in this project:**
+- `getTotalMailboxCount()` - triggered when super admin checks quota
+- `getCachedUserQuota()` - includes COUNT for user quota
+- `listUsersWithCounts()` - subquery COUNT(1)
 
-**解决方案**：已添加缓存，但仍需注意
+**Current mitigation:** caching has been added, but this still needs monitoring.
 
 ---
 
-### 2. **JOIN 查询的行数叠加**
+### 2. **Row accumulation in JOIN queries**
 
 ```sql
--- listUsersWithCounts 中的查询
+-- Query in listUsersWithCounts
 SELECT u.*, COALESCE(cnt.c, 0) AS mailbox_count
 FROM users u
 LEFT JOIN (
-  SELECT user_id, COUNT(1) AS c 
-  FROM user_mailboxes 
+  SELECT user_id, COUNT(1) AS c
+  FROM user_mailboxes
   GROUP BY user_id
 ) cnt ON cnt.user_id = u.id;
 ```
 
-**计费**：
-- 扫描 users 表：假设 100 个用户
-- 扫描 user_mailboxes 表：假设 5000 条记录
-- 总计：5100 行读取（每次查询用户列表）
+**Billing example:**
+- Scan `users`: assume 100 users
+- Scan `user_mailboxes`: assume 5,000 records
+- Total: ~5,100 row reads per user-list query
 
 ---
 
-### 3. **频繁的初始化查询**
+### 3. **Frequent initialization queries**
 
-每次 Worker 冷启动或重启时都会执行：
-- 多次 `PRAGMA table_info()` - 每次扫描表的列定义
-- `SELECT name FROM sqlite_master` - 扫描系统表
-- 表结构检查和迁移
+Each Worker cold start/restart may execute:
+- Multiple `PRAGMA table_info()` calls
+- `SELECT name FROM sqlite_master`
+- Schema checks/migrations
 
-**估算**：
-- 如果 Worker 每天重启 50 次
-- 每次初始化产生约 200 行读取
-- 每天：10,000 行读取
+**Estimate:**
+- 50 restarts/day
+- ~200 row reads per init
+- ~10,000 row reads/day
 
 ---
 
-### 4. **没有 LIMIT 或 LIMIT 过大的查询**
+### 4. **Missing LIMIT or overly large LIMIT**
 
-优化前的查询：
+Before optimization:
 ```sql
--- 每次查询 50 封邮件
 SELECT * FROM messages WHERE mailbox_id = ? ORDER BY received_at DESC LIMIT 50;
 ```
 
-如果有 100 个活跃用户，每天查看 10 次邮件：
-- 100 用户 × 10 次 × 50 行 = 50,000 行/天
+With 100 active users checking mail 10 times/day:
+- 100 × 10 × 50 = 50,000 rows/day
 
 ---
 
-### 5. **索引扫描也计入行读取**
+### 5. **Index scans also count as row reads**
 
-即使使用了索引，扫描的索引行也会计入：
+Even when indexed, scanned index rows are billed:
 
 ```sql
--- 即使有索引，仍会扫描匹配的所有行
 SELECT * FROM messages WHERE mailbox_id = 123 ORDER BY received_at DESC;
--- 如果该邮箱有 1000 封邮件，计费：1000 行读取
+-- If that mailbox has 1,000 emails: billed as 1,000 row reads
 ```
 
 ---
 
-### 6. **批量操作的累积效应**
+### 6. **Cumulative effect of batch operations**
 
 ```sql
--- 批量切换邮箱登录权限（优化前）
--- 100 个邮箱 = 100 次查询 × 平均扫描行数
+-- Before optimization, batch toggle login for 100 mailboxes
+-- Could become 100 queries × average rows scanned
 ```
 
 ---
 
-## 实际案例估算
+## Realistic estimate example
 
-假设你的项目有以下数据量：
-- 邮箱数：10,000 个
-- 邮件数：100,000 封
-- 用户数：50 个
-- 每日活跃用户：10 人
+Assume:
+- 10,000 mailboxes
+- 100,000 messages
+- 50 users
+- 10 daily active users
 
-### 每日行读取估算：
+### Estimated daily row reads
 
-| 操作 | 频率 | 单次读取 | 每日总计 |
+| Operation | Frequency | Rows / Call | Daily Total |
 |------|------|----------|----------|
-| Worker 初始化 | 50 次 | 200 行 | 10,000 |
-| 查看邮件列表 | 10 用户 × 20 次 | 20 行 | 4,000 |
-| 查看邮件详情 | 10 用户 × 50 次 | 1 行 | 500 |
-| 管理员查看用户列表 | 5 次 | 5,050 行 | 25,250 |
-| 超管查看配额（COUNT） | 10 次 | 10,000 行 | 100,000 |
-| 接收新邮件 | 200 封 | 5 行 | 1,000 |
-| 用户配额查询 | 100 次 | 100 行 | 10,000 |
-| **每日总计** | - | - | **~150,750 行** |
+| Worker initialization | 50 times | 200 | 10,000 |
+| Mail list view | 10 users × 20 | 20 | 4,000 |
+| Mail detail view | 10 users × 50 | 1 | 500 |
+| Admin user list | 5 times | 5,050 | 25,250 |
+| Super admin quota check (COUNT) | 10 times | 10,000 | 100,000 |
+| New mail receives | 200 mails | 5 | 1,000 |
+| User quota checks | 100 times | 100 | 10,000 |
+| **Daily total** | - | - | **~150,750 rows** |
 
-**一个月**：150,750 × 30 = **4,522,500 行**（452 万行）
+**Monthly total**: 150,750 × 30 = **4,522,500 rows** (~4.52 million)
 
 ---
 
-## 高行读取的主要原因
+## Primary causes of high row reads
 
-### 🔴 1. 超管查看配额时的 COUNT 全表扫描
+### 🔴 1. Full-table COUNT when super admin checks quota
 ```javascript
-// getTotalMailboxCount() - 每次扫描所有邮箱
+// getTotalMailboxCount() scans all mailboxes
 SELECT COUNT(1) AS count FROM mailboxes;
-// 10,000 个邮箱 = 10,000 行读取
 ```
 
-### 🔴 2. 管理员频繁查看用户列表
+### 🔴 2. Frequent admin user list access
 ```javascript
-// listUsersWithCounts() - 包含 JOIN 和子查询
-// 每次查询扫描 users + user_mailboxes 的所有行
+// listUsersWithCounts() includes JOIN + subquery
+// Scans full users + user_mailboxes scope each time
 ```
 
-### 🔴 3. Worker 频繁冷启动
-- 每次冷启动都要检查表结构
-- PRAGMA 查询虽然已缓存，但 Worker 重启后缓存丢失
+### 🔴 3. Frequent Worker cold starts
+- Every cold start may re-check schema
+- Cached PRAGMA data is lost after restart
 
-### 🔴 4. 没有合理的分页和缓存
-- 某些列表查询可能返回过多数据
-- 缓存失效后重复查询
+### 🔴 4. Weak pagination/caching strategy
+- Some list queries may return too much data
+- Cache misses can trigger repeated reads
 
 ---
 
-## 进一步优化建议
+## Further optimization suggestions
 
-### 1. **缓存 COUNT 结果**
+### 1. **Cache COUNT results longer**
 ```javascript
-// 缓存邮箱总数，10分钟刷新一次
 let cachedMailboxCount = null;
 let cachedMailboxCountTime = 0;
 
@@ -152,7 +148,7 @@ export async function getTotalMailboxCount(db) {
   if (cachedMailboxCount !== null && now - cachedMailboxCountTime < 600000) {
     return cachedMailboxCount;
   }
-  
+
   const result = await db.prepare('SELECT COUNT(1) AS count FROM mailboxes').all();
   cachedMailboxCount = result?.results?.[0]?.count || 0;
   cachedMailboxCountTime = now;
@@ -160,30 +156,28 @@ export async function getTotalMailboxCount(db) {
 }
 ```
 
-### 2. **优化用户列表查询**
+### 2. **Optimize user list counting**
 ```javascript
-// 只在需要时才计算邮箱数量，而不是每次都 JOIN
-// 或者使用缓存的统计数据
+// Compute mailbox counts only when needed
+// or use cached aggregate stats
 ```
 
-### 3. **使用 Cloudflare Durable Objects 存储统计数据**
-- 将 COUNT 等统计数据存储在 DO 中
-- 异步更新，不影响主流程
-- 大幅减少 COUNT 查询
+### 3. **Store aggregate stats in Durable Objects**
+- Keep COUNT-like metrics in DO
+- Update asynchronously
+- Greatly reduce repeated COUNT queries
 
-### 4. **添加请求去重**
-- 同一个请求在短时间内不重复执行
-- 使用 Request ID 或 Hash 作为缓存 Key
+### 4. **Request deduplication**
+- Avoid duplicate execution of identical requests in short windows
+- Use Request ID or hash as cache key
 
-### 5. **监控和日志**
+### 5. **Add query monitoring**
 ```javascript
-// 添加查询监控
 const queryStats = {
   totalQueries: 0,
   estimatedRows: 0
 };
 
-// 记录每次查询
 function logQuery(query, estimatedRows) {
   queryStats.totalQueries++;
   queryStats.estimatedRows += estimatedRows;
@@ -192,27 +186,27 @@ function logQuery(query, estimatedRows) {
 
 ---
 
-## Cloudflare D1 免费配额
+## Cloudflare D1 free-tier quota
 
-- **每日行读取**：500 万行
-- **每日行写入**：10 万行
-- **存储空间**：5 GB
+- **Daily row reads**: 5 million
+- **Daily row writes**: 100,000
+- **Storage**: 5 GB
 
-如果超出配额：
-- Worker 会返回错误
-- 需要升级到付费计划
+If quota is exceeded:
+- Worker requests may fail
+- You need to move to a paid plan
 
 ---
 
-## 总结
+## Summary
 
-400 万行读取主要来自：
-1. ✅ **COUNT 查询**（已部分缓存）
-2. ✅ **JOIN 查询**（需进一步优化）
-3. ✅ **频繁的初始化**（已优化表结构缓存）
-4. ✅ **没有合理的 LIMIT**（已优化）
-5. ⚠️ **超管频繁查看配额**（需要添加更长的缓存）
-6. ⚠️ **Worker 频繁重启**（考虑使用持久化缓存）
+The 4-million row-read level mainly comes from:
+1. ✅ **COUNT queries** (partially cached)
+2. ✅ **JOIN queries** (can be optimized further)
+3. ✅ **Frequent initialization** (schema cache already improved)
+4. ✅ **Insufficient LIMIT usage** (already improved)
+5. ⚠️ **Frequent super-admin quota checks** (increase cache TTL)
+6. ⚠️ **Frequent Worker restarts** (consider persistent caching)
 
-建议优先优化超管配额查询的缓存时间！
+Priority recommendation: increase cache duration for super-admin quota queries.
 

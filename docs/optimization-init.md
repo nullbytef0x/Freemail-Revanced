@@ -1,103 +1,102 @@
-# 数据库初始化优化说明
+# Database Initialization Optimization Notes
 
-## 优化目标
-减少每次 Worker 启动时的数据库行读取，避免不必要的表结构检查和初始化操作。
+## Goal
+Reduce D1 row reads during Worker startup and avoid unnecessary runtime schema checks.
 
-## 主要改进
+## Main Improvements
 
-### 1. 轻量级初始化机制
-**优化前**：
-- 每次启动都执行完整的表结构检查
-- 使用 `PRAGMA table_info` 查询每个表的列信息
-- 执行多次 `ALTER TABLE` 尝试添加新列
-- 检查旧表迁移逻辑
+### 1. Lightweight initialization flow
+**Before:**
+- Full schema checks on every start
+- `PRAGMA table_info` for each table
+- Multiple `ALTER TABLE` attempts for missing columns
+- Legacy migration checks at runtime
 
-**优化后**：
-- Worker 生命周期内只在首次启动时执行完整检查
-- 使用快速查询（`SELECT 1 FROM table LIMIT 1`）验证表是否存在
-- 如果表存在，直接跳过初始化
-- 移除所有运行时的表结构检查
+**After:**
+- Full checks only on first start within Worker lifecycle
+- Fast existence check using `SELECT 1 FROM table LIMIT 1`
+- Skip initialization if tables already exist
+- Removed runtime schema inspection loops
 
-### 2. 标准化表结构
-**优化前**：
-- 每次插入数据前检查列是否存在
-- 动态构建 SQL 语句
-- 使用缓存的表结构信息
+### 2. Standardized schema usage
+**Before:**
+- Column-existence checks before inserts
+- Dynamically built SQL
+- Cached schema metadata at runtime
 
-**优化后**：
-- 使用固定的表结构（在 `d1-init.sql` 中定义）
-- 直接使用标准列名插入数据
-- 如果列不存在会直接报错，便于排查问题
+**After:**
+- Fixed schema defined in `d1-init.sql`
+- Direct inserts using standard column names
+- Missing columns fail fast for easier troubleshooting
 
-### 3. 独立的数据库设置脚本
-创建了 `d1-init.sql` 文件，用于首次部署时初始化数据库结构。
+### 3. Dedicated database setup script
+Created `d1-init.sql` for first-time deployment schema initialization.
 
-**使用方法**：
+**Usage:**
 ```bash
-# 首次部署时执行
+# Run once for first deployment
 wrangler d1 execute DB --file=./d1-init.sql
 ```
 
-## 代码变更
+## Code Changes
 
 ### database.js
-1. **initDatabase()**: 简化为轻量级检查
-2. **performFirstTimeSetup()**: 新增首次启动设置函数
-3. **setupDatabase()**: 新增完整数据库设置函数（可供手动执行）
-4. **ensureUsersTables()**: 简化为仅创建表
-5. **ensureSentEmailsTable()**: 简化为仅创建表
-6. **recordSentEmail()**: 移除回退创建表逻辑
+1. **initDatabase()**: simplified to lightweight checks
+2. **performFirstTimeSetup()**: added first-start setup function
+3. **setupDatabase()**: added full setup function for manual execution
+4. **ensureUsersTables()**: simplified to create-only behavior
+5. **ensureSentEmailsTable()**: simplified to create-only behavior
+6. **recordSentEmail()**: removed fallback table-creation logic
 
 ### server.js
-1. 移除邮件接收处理中的表结构检测
-2. 直接使用标准列名插入数据
+1. Removed schema detection from mail receive flow
+2. Insert data directly using standard schema
 
 ### apiHandlers.js
-1. 移除 `ensureSentEmailsTable` 的导入和调用
-2. 移除测试邮件接收中的表结构检测
+1. Removed import/call to `ensureSentEmailsTable`
+2. Removed schema detection in receive testing path
 
-## 性能提升
+## Performance Impact
 
-### 行读取减少
-- **每次 Worker 启动**: 从约 20-30 次查询减少到 3-4 次快速查询
-- **邮件接收**: 从检查表结构 + 插入减少到仅插入操作
-- **API 调用**: 无需额外的表结构检查
+### Reduced row reads
+- **Per Worker startup**: ~20-30 queries reduced to ~3-4 fast checks
+- **Mail receive path**: reduced from schema-check + insert to insert-only
+- **API calls**: no extra schema checks needed
 
-### 启动速度
-- Worker 冷启动速度提升约 30-50%
-- 热启动几乎无数据库初始化开销
+### Startup speed
+- Cold start improvement: roughly 30-50%
+- Hot start: nearly zero DB-init overhead
 
-## 部署建议
+## Deployment Recommendations
 
-### 首次部署
-1. 执行 SQL 初始化脚本创建表结构
-2. 部署 Worker 代码
-3. 验证系统正常运行
+### First deployment
+1. Run SQL init script to create schema
+2. Deploy Worker code
+3. Verify system health
 
-### 更新部署
-1. 直接部署新代码即可
-2. 如果表结构已存在，初始化会自动跳过
+### Updates
+1. Deploy code directly
+2. If schema already exists, initialization is skipped automatically
 
-### 表结构变更
-如果需要修改表结构：
-1. 更新 `d1-init.sql` 文件
-2. 手动执行 `ALTER TABLE` 语句添加新列
-3. 更新代码中的插入/查询语句
-4. 部署新代码
+### Schema changes
+When schema must change:
+1. Update `d1-init.sql`
+2. Run required `ALTER TABLE` manually
+3. Update related insert/query code
+4. Redeploy
 
-## 注意事项
+## Notes
 
-1. **表结构固定**: 系统假设表结构已正确创建，不会自动修复缺失的列
-2. **错误提示**: 如果表或列不存在，会直接抛出错误，便于排查问题
-3. **兼容性**: 与 Cloudflare D1 平台完全兼容
-4. **无缝升级**: 对于已有数据库，首次启动会快速验证并跳过初始化
+1. **Fixed schema expectation**: the app assumes schema is already correct
+2. **Fail-fast errors**: missing table/column throws direct errors
+3. **Compatibility**: fully compatible with Cloudflare D1
+4. **Smooth upgrade**: existing DBs pass fast checks and skip heavy init
 
-## 监控建议
+## Monitoring Recommendations
 
-建议监控以下指标：
-- D1 数据库行读取次数（每日）
-- Worker 启动时间
-- 数据库错误率
+Track these metrics:
+- Daily D1 row reads
+- Worker startup time
+- Database error rate
 
-如果发现表不存在的错误，说明需要执行初始化 SQL 脚本。
-
+If you see missing-table errors, run the SQL initialization script.

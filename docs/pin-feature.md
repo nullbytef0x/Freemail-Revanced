@@ -1,69 +1,69 @@
-# 邮箱置顶功能
+# Mailbox Pin Feature
 
-## 功能概述
+## Overview
 
-邮箱置顶功能允许用户将常用的邮箱地址固定在邮箱历史列表的顶部，方便快速访问和管理。
+The pin feature lets users keep frequently used mailbox addresses at the top of their mailbox history list for faster access and management.
 
-## 主要特性
+## Key Capabilities
 
-### 1. 置顶/取消置顶
-- 点击邮箱项右侧的📍图标可以置顶邮箱
-- 置顶后图标变为📌，点击可以取消置顶
-- 置顶状态会持久保存到数据库
+### 1. Pin / Unpin
+- Click the 📍 icon on the right of a mailbox item to pin it
+- Pinned state icon becomes 📌; click again to unpin
+- Pin status is persisted in the database
 
-### 2. 视觉标识
-- 置顶的邮箱会有特殊的背景色和边框
-- 置顶邮箱左上角显示📌标记
-- 鼠标悬停时显示操作按钮
+### 2. Visual Indicators
+- Pinned mailboxes use a dedicated background/border style
+- Pinned items show a 📌 marker in the top-left area
+- Action buttons appear on hover
 
-### 3. 智能排序
-- 置顶的邮箱始终显示在列表顶部
-- 同级别内按最后访问时间排序
-- 支持分页加载
+### 3. Smart Sorting
+- Pinned mailboxes always stay at the top
+- Items within same priority are sorted by last access time
+- Supports paginated loading
 
-## 使用方法
+## How to Use
 
-### 置顶邮箱
-1. 在邮箱历史列表中找到要置顶的邮箱
-2. 鼠标悬停在邮箱项上，会显示📍按钮
-3. 点击📍按钮，邮箱将被置顶
+### Pin a mailbox
+1. Find the mailbox in history
+2. Hover over it to reveal the 📍 button
+3. Click 📍 to pin it
 
-### 取消置顶
-1. 找到已置顶的邮箱（有📌标记）
-2. 鼠标悬停显示📌按钮
-3. 点击📌按钮，取消置顶
+### Unpin a mailbox
+1. Find a pinned mailbox (with 📌 marker)
+2. Hover to reveal the 📌 button
+3. Click 📌 to unpin
 
-### 批量管理
-- 可以同时置顶多个邮箱
-- 置顶的邮箱会按置顶时间排序
-- 删除邮箱时会同时清除置顶状态
+### Batch usage behavior
+- Multiple mailboxes can be pinned at once
+- Pinned items are sorted by pin/order logic
+- Deleting a mailbox clears its pin status
 
-## 技术实现
+## Technical Implementation
 
-### 数据库结构
+### Database schema
 ```sql
 ALTER TABLE mailboxes ADD COLUMN is_pinned INTEGER DEFAULT 0;
 CREATE INDEX idx_mailboxes_is_pinned ON mailboxes(is_pinned DESC);
 ```
 
-### API接口
-- `POST /api/mailboxes/pin?address=邮箱地址` - 切换置顶状态
-- `GET /api/mailboxes` - 返回按置顶状态排序的邮箱列表
+### API endpoints
+- `POST /api/mailboxes/pin?address=<mailbox>` - toggle pinned state
+- `GET /api/mailboxes` - returns mailbox list sorted by pinned status
 
-### 前端交互
-- 实时更新置顶状态
-- 自动重新排序显示
-- 支持演示模式
+### Frontend interaction
+- Real-time pin state updates
+- Automatic UI re-ordering
+- Fully supported in demo mode
 
-## 兼容性
+## Compatibility
 
-- 支持现有邮箱数据的自动迁移
-- 向后兼容，不影响现有功能
-- 演示模式下完全可用
+- Supports migration for existing mailbox data
+- Backward compatible with existing features
+- Fully available in demo mode
 
-## 注意事项
+## Notes
 
-1. 置顶状态是用户级别的，不同用户之间不共享
-2. 删除邮箱时会同时清除置顶状态
-3. 置顶功能不影响邮件的接收和发送
-4. 支持离线演示模式
+1. Pin status is user-scoped and not shared across users
+2. Deleting a mailbox also clears its pin status
+3. Pinning does not affect email receiving/sending behavior
+4. Supports offline demo mode

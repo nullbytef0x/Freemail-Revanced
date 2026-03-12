@@ -1,70 +1,68 @@
 ### Loading
 ![Loading](../pic/v3/jiaoyan.png)
-### 首页
-![首页展示](../pic/shouye.png)
 
-### 用户登陆
-![登录/密码保护](../pic/mimabaohu.png)
+### Home Page
+![Home Page](../pic/shouye.png)
 
-### 邮件内容查看（HTML 渲染）
-![邮件内容查看](../pic/youjianneironchakan.png)
+### User Login
+![Login / Password Protection](../pic/mimabaohu.png)
 
-### 便捷复制验证码
-![便捷复制验证码](../pic/bianjiefuzhiyanzhengma.png)
+### Email Content View (HTML Rendering)
+![Email Content View](../pic/youjianneironchakan.png)
 
-### 用户管理-首页
-![用户管理-首页](../pic/v3/yonghuguanli.png)
+### Quick Verification Code Copy
+![Quick Verification Code Copy](../pic/bianjiefuzhiyanzhengma.png)
 
-### 分配邮箱
-![分配邮箱（单个）](../pic/v3/fenpeiyouxiang.png)
-![分配邮箱（多个）](../pic/v3/fenpeiyouxiangduoge.png)
+### User Management - Home
+![User Management - Home](../pic/v3/yonghuguanli.png)
 
-### 编辑用户信息
-![编辑用户信息](../pic/v3/bianjiyonghuxinxi.png)
+### Mailbox Assignment
+![Mailbox Assignment (Single)](../pic/v3/fenpeiyouxiang.png)
+![Mailbox Assignment (Batch)](../pic/v3/fenpeiyouxiangduoge.png)
 
-### 用户删除
-![删除用户确认](../pic/v3/shanchuyonghu.png)
+### Edit User Information
+![Edit User Information](../pic/v3/bianjiyonghuxinxi.png)
 
+### User Deletion
+![Delete User Confirmation](../pic/v3/shanchuyonghu.png)
 
-### 上限提示
-![邮箱上限提示](../pic/v3/youxiangshangxian.png)
+### Limit Reached Warning
+![Mailbox Limit Warning](../pic/v3/youxiangshangxian.png)
 
+### Send Mail Test (Compose Popup)
+![Send Mail Test - Compose Popup](../pic/cesifajian.png)
 
-### 发件测试（发送弹窗）
-![发件测试-发件弹窗](../pic/cesifajian.png)
+### Send Mail Test (Delivery Result)
+![Send Mail Test - Delivery Result](../pic/cesjieshoujiieguo.png)
 
-### 发件测试（收件结果）
-![发件测试-收件结果](../pic/cesjieshoujiieguo.png)
+### Mailbox Pinning Effect
+![Mailbox Pinning Effect](../pic/zhiding.png)
 
-### 邮箱置顶-置顶效果
-![邮箱置顶-置顶效果](../pic/zhiding.png)
+## 📱 Mobile Screenshots
 
-## 📱 手机端展示
-
-### 手机端首页与登录
+### Mobile Home and Login
 <div style="display: flex; gap: 20px; justify-content: center; margin: 20px 0;">
-  <img src="../pic/phone/shouye.png" alt="手机端首页" style="height: 400px;" />
-  <img src="../pic/phone/shoujidengl.png" alt="手机端登录" style="height: 400px;" />
+  <img src="../pic/phone/shouye.png" alt="Mobile Home" style="height: 400px;" />
+  <img src="../pic/phone/shoujidengl.png" alt="Mobile Login" style="height: 400px;" />
 </div>
 
-### 手机端生成与历史
+### Mobile Generation and History
 <div style="display: flex; gap: 20px; justify-content: center; margin: 20px 0;">
-  <img src="../pic/phone/shencheng.png" alt="手机端生成邮箱" style="height: 400px;" />
-  <img src="../pic/phone/lishi.png" alt="手机端历史邮箱" style="height: 400px;" />
+  <img src="../pic/phone/shencheng.png" alt="Mobile Mailbox Generation" style="height: 400px;" />
+  <img src="../pic/phone/lishi.png" alt="Mobile Mailbox History" style="height: 400px;" />
 </div>
 
-### 手机端发件与自定义
+### Mobile Sent Box and Custom Settings
 <div style="display: flex; gap: 20px; justify-content: center; margin: 20px 0;">
-  <img src="../pic/phone/shoujianfajianxiang.png" alt="手机端发件箱" style="height: 400px;" />
-  <img src="../pic/phone/zidingyi.png" alt="手机端自定义设置" style="height: 400px;" />
+  <img src="../pic/phone/shoujianfajianxiang.png" alt="Mobile Sent Box" style="height: 400px;" />
+  <img src="../pic/phone/zidingyi.png" alt="Mobile Custom Settings" style="height: 400px;" />
 </div>
 
-### 手机端发送邮件与邮件详情
+### Mobile Send Email and Email Details
 <div style="display: flex; gap: 20px; justify-content: center; margin: 20px 0;">
-  <img src="../pic/phone/fasonyoujian.png" alt="手机端发送邮件" style="height: 400px;" />
-  <img src="../pic/phone/youjianxiangqing.png" alt="手机端邮件详情" style="height: 400px;" />
+  <img src="../pic/phone/fasonyoujian.png" alt="Mobile Send Email" style="height: 400px;" />
+  <img src="../pic/phone/youjianxiangqing.png" alt="Mobile Email Details" style="height: 400px;" />
 </div>
 
-### 邮箱首页
-![邮箱首页](../pic/v4/youxiang.png)
-
+### Mailbox Home
+![Mailbox Home](../pic/v4/youxiang.png)

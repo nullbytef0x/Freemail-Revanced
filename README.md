@@ -1,6 +1,6 @@
 # Freemail - Temporary Email Service
 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/idinging/freemail)
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/nullbytef0x/Freemail-Revanced)
 
 An **open-source temporary email service** built with Cloudflare Workers + D1 + R2.
 It includes full features for email receiving, sending, forwarding, and user management.
