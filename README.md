@@ -1,211 +1,211 @@
-# Freemail - 临时邮箱服务
+# Freemail - Temporary Email Service
 
 [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/idinging/freemail)
 
-一个基于 Cloudflare Workers + D1 + R2 构建的**开源临时邮箱服务**，支持邮件接收、发送、转发、用户管理等完整功能。
+An **open-source temporary email service** built with Cloudflare Workers + D1 + R2.
+It includes full features for email receiving, sending, forwarding, and user management.
 
-**当前版本：V4.8** - 新增单个邮件转发和收藏功能
+**Current version: V4.8** - Added per-mailbox forwarding and favorites.
 
-`转发的地址需要在cloudflare Email Addresses中验证`
+`Forward target addresses must be verified in Cloudflare Email Addresses before use.`
 
-📖 **[一键部署指南](docs/yijianbushu.md)** | 📬 **[Resend 发件配置](docs/resend.md)** | 📚 **[API 文档](docs/api.md)**
+📖 **[One-click deployment guide](docs/yijianbushu.md)** | 📬 **[Resend sending setup](docs/resend.md)** | 📚 **[API docs](docs/api.md)**
 
-## 📸 项目展示
-### 体验地址： https://mailexhibit.dinging.top/
+## 📸 Project Preview
+### Live demo: https://mailexhibit.dinging.top/
 
-### 体验账号： guest
-### 体验密码： admin
-### 页面展示
+### Demo username: guest
+### Demo password: admin
+### Screenshots
 
-#### 登陆
-![登陆页面](pic/dlu.png)
-#### 首页
-![首页展示](pic/shouye.png)
+#### Login
+![Login Page](pic/dlu.png)
 
-### 手机端生成与历史
+#### Home
+![Home Page](pic/shouye.png)
+
+### Mobile: Generation & History
 <div style="display: flex; gap: 20px; justify-content: center; margin: 20px 0;">
-  <img src="./pic/phone/shouye.png" alt="手机端生成邮箱" style="height: 400px;" />
-  <img src="./pic/phone/lishi.png" alt="手机端历史邮箱" style="height: 400px;" />
+  <img src="./pic/phone/shouye.png" alt="Mobile - Generate Mailbox" style="height: 400px;" />
+  <img src="./pic/phone/lishi.png" alt="Mobile - Mailbox History" style="height: 400px;" />
 </div>
 
-### 单个邮箱页
+### Single Mailbox Page
+![Single Mailbox Page](./pic/v4/youxiang.png)
 
-![单个邮箱首页](./pic/v4/youxiang.png)
+### All Mailboxes Preview
+![All Mailboxes - Global Edit](./pic/v4/xiugaiquanju.png)
+![All Mailboxes - List View](./pic/v4/liebiao.png)
 
-### 全部邮箱预览
-![单个邮箱首页](./pic/v4/xiugaiquanju.png)
-![单个邮箱首页](./pic/v4/liebiao.png)
+#### [Click for more screenshots](docs/zhanshi.md)
 
+## Features
 
-#### [更多展示点击查看](docs/zhanshi.md)
-
-## 功能特性
-
-| 类别 | 特性 |
+| Category | Features |
 |------|------|
-| 📧 **邮箱管理** | 随机生成临时邮箱 · 多域名支持 · 置顶/收藏 · 历史记录 · 邮箱搜索 |
-| 💌 **邮件功能** | 实时接收 · 自动刷新 · 验证码智能提取 · HTML/纯文本 · 邮件转发 |
-| ✉️ **发件支持** | Resend API 集成 · 多域名密钥 · 批量发送 · 定时发送 · 发件记录 |
-| 👥 **用户管理** | 三层权限模型 · 用户/邮箱分配 · 邮箱单点登录 · 登录权限控制 |
-| 🎨 **现代界面** | 毛玻璃效果 · 响应式设计 · 移动端适配 · 列表/卡片视图 |
-| ⚡ **技术架构** | Cloudflare Workers · D1 数据库 · R2 存储 · Email Routing |
+| 📧 **Mailbox Management** | Random temporary mailbox generation · Multi-domain support · Pin/Favorite · History · Search |
+| 💌 **Mail Features** | Real-time receiving · Auto refresh · Smart verification code extraction · HTML/Plain text · Mail forwarding |
+| ✉️ **Sending Support** | Resend API integration · Multi-domain API keys · Batch send · Scheduled send · Send history |
+| 👥 **User Management** | Three-tier permission model · User/mailbox assignment · Mailbox SSO login · Login permission control |
+| 🎨 **Modern UI** | Glassmorphism style · Responsive layout · Mobile support · List/Card views |
+| ⚡ **Architecture** | Cloudflare Workers · D1 Database · R2 Storage · Email Routing |
 
-> 💡 邮箱用户自行修改密码功能默认关闭，如需开启请将 `mailbox.html` 第 77-80 行取消注释。
+> 💡 Self-service mailbox password change is disabled by default. To enable it, uncomment lines 77-80 in `mailbox.html`.
 
-## 版本历史
+## Version History
 
 <details>
-<summary><strong>V4.8</strong>（当前版本）- 邮件转发和收藏</summary>
+<summary><strong>V4.8</strong> (Current) - Forwarding and Favorites</summary>
 
-- 邮箱管理页面支持按转发/收藏状态筛选
-- 支持将指定邮箱转发到目标邮箱
-- 批量前缀转发可通过 `FORWARD_RULES` 环境变量配置
+- Added filtering by forwarding/favorite status in mailbox management
+- Added forwarding from a specific mailbox to a target email
+- Added batch prefix forwarding via the `FORWARD_RULES` environment variable
 </details>
 
 <details>
-<summary><strong>V4.5</strong> - 多域名发送配置</summary>
+<summary><strong>V4.5</strong> - Multi-domain Sending Configuration</summary>
 
-- 支持为不同域名配置不同的 Resend API 密钥
-- 支持键值对、JSON、单密钥三种配置格式
-- 系统根据发件人域名自动选择 API 密钥
+- Supports different Resend API keys for different sender domains
+- Supports key-value, JSON, and single-key formats
+- Automatically selects API key based on sender domain
 </details>
 
 <details>
-<summary><strong>V4.0</strong> - 邮箱登录与全局管理</summary>
+<summary><strong>V4.0</strong> - Mailbox Login and Global Management</summary>
 
-- 支持邮箱地址单点登录
-- 全局邮箱管理功能，可限制单个邮箱登录
-- 邮箱搜索、随机人名生成、列表/卡片视图切换
+- Added mailbox address SSO login
+- Added global mailbox management and per-mailbox login restriction
+- Added mailbox search, random name generation, and list/card view switching
 </details>
 
 <details>
-<summary><strong>V3.x</strong> - 用户管理与性能优化</summary>
+<summary><strong>V3.x</strong> - User Management and Performance Optimization</summary>
 
-- V3.5：数据库查询优化、R2 存储完整 EML、移动端适配
-- V3.0：三层权限模型、用户管理后台、前端权限防护
+- V3.5: Database query optimization, full EML storage in R2, mobile adaptation
+- V3.0: Three-tier permission model, user management admin panel, frontend permission guards
 </details>
 
 <details>
-<summary><strong>V1.x ~ V2.x</strong> - 基础功能</summary>
+<summary><strong>V1.x ~ V2.x</strong> - Core Features</summary>
 
-- V2.0：Resend 发件集成、邮箱置顶
-- V1.0：邮箱生成、邮件接收、验证码提取
+- V2.0: Resend sending integration and mailbox pinning
+- V1.0: Mailbox generation, email receiving, verification code extraction
 </details>
 
-## 部署配置
+## Deployment
 
-### 快速开始
+### Quick Start
 
-1. **一键部署**：点击顶部按钮，按照 [部署指南](docs/yijianbushu.md) 完成配置
-2. **配置邮件路由**（收件必需）：域名 → Email Routing → Catch-all → 绑定 Worker
-3. **配置发件**（可选）：参考 [Resend 配置教程](docs/resend.md)
+1. **One-click deploy**: Click the deploy button at the top and follow the [deployment guide](docs/yijianbushu.md)
+2. **Configure Email Routing** (required for receiving): Domain → Email Routing → Catch-all → Bind to Worker
+3. **Configure sending** (optional): Follow the [Resend setup guide](docs/resend.md)
 
-> 使用 Git 集成部署时，请在 Workers → Settings → Variables 中手动配置环境变量
+> If you deploy via Git integration, configure environment variables manually in Workers → Settings → Variables.
 
-### 环境变量
+### Environment Variables
 
-| 变量名 | 说明 | 必需 |
+| Variable | Description | Required |
 |--------|------|------|
-| TEMP_MAIL_DB | D1 数据库绑定 | 是 |
-| MAIL_EML | R2 存储桶绑定 | 是 |
-| MAIL_DOMAIN | 邮箱域名，多个用逗号分隔 | 是 |
-| ADMIN_PASSWORD | 严格管理员密码 | 是 |
-| ADMIN_NAME | 严格管理员用户名（默认 `admin`） | 否 |
-| JWT_TOKEN | JWT 签名密钥 | 是 |
-| RESEND_API_KEY | Resend 发件密钥，支持多域名配置 | 否 |
-| FORWARD_RULES | 邮件转发规则 | 否 |
+| TEMP_MAIL_DB | D1 database binding | Yes |
+| MAIL_EML | R2 bucket binding | Yes |
+| MAIL_DOMAIN | Mail domains, comma-separated | Yes |
+| ADMIN_PASSWORD | Strict admin password | Yes |
+| ADMIN_NAME | Strict admin username (default: `admin`) | No |
+| JWT_TOKEN | JWT signing secret | Yes |
+| RESEND_API_KEY | Resend API key(s), supports multi-domain config | No |
+| FORWARD_RULES | Email forwarding rules | No |
 
 <details>
-<summary><strong>RESEND_API_KEY 配置格式</strong></summary>
+<summary><strong>RESEND_API_KEY Formats</strong></summary>
 
 ```bash
-# 单密钥（向后兼容）
+# Single key (backward compatible)
 RESEND_API_KEY="re_xxxxxxxxxxxxxxxxxxxxxxxx"
 
-# 键值对格式（推荐）
+# Key-value format (recommended)
 RESEND_API_KEY="domain1.com=re_key1,domain2.com=re_key2"
 
-# JSON格式
+# JSON format
 RESEND_API_KEY='{"domain1.com":"re_key1","domain2.com":"re_key2"}'
 ```
 
-系统会根据发件人域名自动选择对应的 API 密钥。
+The system automatically chooses the correct API key based on the sender domain.
 </details>
 
 <details>
-<summary><strong>FORWARD_RULES 配置格式</strong></summary>
+<summary><strong>FORWARD_RULES Formats</strong></summary>
 
-规则按前缀匹配，`*` 为兜底规则。
+Rules are matched by local-part prefix, and `*` is the fallback rule.
 
-⚠️ **重要**：转发目标邮箱必须在 Cloudflare 控制台中验证后才能使用：
-1. 进入 Cloudflare 控制台 → 域名 → 电子邮件 → 电子邮件路由
-2. 切换到「目标地址」选项卡
-3. 点击「添加目标地址」，输入转发目标邮箱
-4. 前往目标邮箱收取验证邮件并点击确认链接
+⚠️ **Important**: Target forwarding addresses must be verified in Cloudflare before they can be used:
+1. Open Cloudflare Dashboard → Domain → Email → Email Routing
+2. Go to the "Destination addresses" tab
+3. Click "Add destination address" and enter your target email
+4. Open the verification email in that inbox and confirm it
 
-![转发目标地址验证](pic/resend/zhuanfa.png)
+![Forward Target Address Verification](pic/resend/zhuanfa.png)
 
 ```bash
-# 键值对格式
+# Key-value format
 FORWARD_RULES="vip=a@example.com,news=b@example.com,*=fallback@example.com"
 
-# JSON格式
+# JSON format
 FORWARD_RULES='[{"prefix":"vip","email":"a@example.com"},{"prefix":"*","email":"fallback@example.com"}]'
 
-# 禁用转发
-FORWARD_RULES="" 或 "disabled" 或 "none"
+# Disable forwarding
+FORWARD_RULES="" or "disabled" or "none"
 ```
 </details>
 
-## 故障排除
+## Troubleshooting
 
 <details>
-<summary><strong>常见问题</strong></summary>
+<summary><strong>Common Issues</strong></summary>
 
-1. **邮件接收不到**：检查 Email Routing 配置、MX 记录、MAIL_DOMAIN 变量
-2. **数据库连接错误**：确认 D1 绑定名为 `TEMP_MAIL_DB`，检查 database_id
-3. **登录问题**：确认 ADMIN_PASSWORD 和 JWT_TOKEN 已设置，清除浏览器缓存
-4. **界面显示异常**：检查静态资源路径，查看浏览器控制台错误
+1. **Emails are not received**: Check Email Routing, MX records, and `MAIL_DOMAIN`
+2. **Database connection errors**: Ensure the D1 binding name is `TEMP_MAIL_DB` and verify `database_id`
+3. **Login issues**: Ensure `ADMIN_PASSWORD` and `JWT_TOKEN` are set, then clear browser cache
+4. **UI rendering issues**: Check static asset paths and browser console errors
 </details>
 
 <details>
-<summary><strong>调试技巧</strong></summary>
+<summary><strong>Debug Tips</strong></summary>
 
 ```bash
-# 本地调试
+# Local development
 wrangler dev
 
-# 查看实时日志
+# Real-time logs
 wrangler tail
 
-# 检查数据库
+# Check database data
 wrangler d1 execute TEMP_MAIL_DB --command "SELECT * FROM mailboxes LIMIT 10"
 ```
 </details>
 
-## 注意事项
+## Notes
 
-- **静态资源缓存**：更新后在 Cloudflare 控制台 Purge Everything，浏览器强制刷新
-- **R2/D1 费用**：有免费额度限制，建议定期清理过期邮件
-- **安全**：生产环境务必修改默认的 `ADMIN_PASSWORD` 和 `JWT_TOKEN`
+- **Static asset cache**: After updates, run "Purge Everything" in Cloudflare and hard-refresh your browser
+- **R2/D1 costs**: Free-tier limits apply; clean expired emails regularly
+- **Security**: Always change default `ADMIN_PASSWORD` and `JWT_TOKEN` in production
 
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=idinging/freemail&type=Date)](https://www.star-history.com/#idinging/freemail&Date)
 
-## 联系方式
+## Contact
 
-- 微信：`iYear1213`
+- WeChat: `iYear1213`
 
 ## Buy me a coffee
 
-如果你觉得本项目对你有帮助，欢迎赞赏支持：
+If this project helps you, your support is appreciated:
 
 <p align="left">
-  <img src="pic/alipay.jpg" alt="支付宝赞赏码" height="400" />
-  <img src="pic/weichat.jpg" alt="微信赞赏码" height="400" />
+  <img src="pic/alipay.jpg" alt="Alipay QR" height="400" />
+  <img src="pic/weichat.jpg" alt="WeChat QR" height="400" />
 </p>
 
-## 许可证
+## License
 
 Apache-2.0 license

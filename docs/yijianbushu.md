@@ -1,32 +1,33 @@
-
-## 一键部署指南
+## One-Click Deployment Guide
 
 [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/idinging/freemail)
 
-#### 1. 首先点击  Deploy to Cloudflare
+#### 1. Click Deploy to Cloudflare
 
-#### 2 登陆账号后会进入，推荐选择亚洲地区（当然不选择亚洲也没关系）
-`不要修改数据库名称和R2名称 可能导致无法查询`
-![5a0cc80913848aca4b5f4058538ad6aa|690x333](../pic/v4/depl1.png)
-#### 3. 点击创建部署，然后耐心等待克隆部署
-![5a0cc80913848aca4b5f4058538ad6aa|690x333](../pic/v4/depl2.png)
+#### 2. After signing in, choose your region (Asia is recommended, but optional)
+Do not change the D1 database name or R2 bucket name, or queries may fail.
 
-#### 4. 点击继续处理项目，绑定必须的环境变量
-![5a0cc80913848aca4b5f4058538ad6aa|690x333](../pic/v4/depl.png)
+![Deployment Step 1](../pic/v4/depl1.png)
 
-![5a0cc80913848aca4b5f4058538ad6aa|690x333](../pic/v4/depl5.png)
+#### 3. Click Create and Deploy, then wait for the clone/deploy process
+![Deployment Step 2](../pic/v4/depl2.png)
 
+#### 4. Continue project setup and bind the required environment variables
+![Deployment Variables 1](../pic/v4/depl.png)
 
-#### 5. 添加完成后点击部署即可
+![Deployment Variables 2](../pic/v4/depl5.png)
 
-    `注：这三个变量是必须的，其他变量例如 管理员名称，发邮件密钥可自行决定是否添加`
+#### 5. After adding variables, click Deploy
 
-    最后就可以打开对应的worker连接登陆了
+Note: These three variables are required. Other variables (such as admin name and sending API key) are optional.
 
-![5a0cc80913848aca4b5f4058538ad6aa|690x333](../pic/v4/depl5.jpeg)
+After deployment, open the Worker URL and sign in.
 
-#### 6. 默认管理员账号为 admin
+![Deployment Complete](../pic/v4/depl5.jpeg)
 
+#### 6. The default admin username is admin
 
-#### 7. 记得将域名邮箱的catch-all 绑定到worker上（不绑定无法接收到邮件）
-![5a0cc80913848aca4b5f4058538ad6aa|690x333](../pic/v4/depl6.png)
+#### 7. Bind your domain email catch-all rule to this Worker
+If you do not bind catch-all, incoming emails will not be received.
+
+![Catch-all Binding](../pic/v4/depl6.png)
